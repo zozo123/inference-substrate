@@ -4,7 +4,7 @@
 <!-- Primary meta -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Inference Substrate — A field report on the cloud underneath Software 3.0</title>
+<title>The Stochastic CPU — A field report on the cloud underneath Software 3.0</title>
 <meta name="description" content="How the cloud is being rebuilt for agents: the agent-hour, the two-level cache, snapshot provenance, and a 2030 cloud bill. A field report by Yossi Eliaz.">
 <meta name="author" content="Yossi Eliaz · at incredibuild and islo.dev · Tel Aviv">
 <meta name="theme-color" content="#FAF7F2">
@@ -14,8 +14,8 @@
 
 <!-- Open Graph -->
 <meta property="og:type" content="article">
-<meta property="og:site_name" content="The Inference Substrate">
-<meta property="og:title" content="The Inference Substrate">
+<meta property="og:site_name" content="The Stochastic CPU">
+<meta property="og:title" content="The Stochastic CPU">
 <meta property="og:description" content="A field report on the cloud being built underneath Software 3.0. The agent-hour, the two-level cache, snapshot provenance, and a 2030 cloud bill.">
 <meta property="og:url" content="https://zozo123.github.io/inference-substrate/">
 <meta property="og:image" content="https://zozo123.github.io/inference-substrate/og-image.png">
@@ -23,7 +23,7 @@
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Inference Substrate — A field report on the cloud being built underneath Software 3.0, by Yossi Eliaz.">
+<meta property="og:image:alt" content="The Stochastic CPU — A field report on the cloud being built underneath Software 3.0, by Yossi Eliaz.">
 <meta property="og:locale" content="en_US">
 
 <!-- Article -->
@@ -38,10 +38,10 @@
 
 <!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Inference Substrate">
+<meta name="twitter:title" content="The Stochastic CPU">
 <meta name="twitter:description" content="A field report on the cloud being built underneath Software 3.0. The agent-hour, the two-level cache, snapshot provenance, and a 2030 cloud bill.">
 <meta name="twitter:image" content="https://zozo123.github.io/inference-substrate/og-image.png">
-<meta name="twitter:image:alt" content="The Inference Substrate — essay cover card.">
+<meta name="twitter:image:alt" content="The Stochastic CPU — essay cover card.">
 <meta name="twitter:creator" content="">
 <meta name="twitter:site" content="">
 
@@ -50,7 +50,7 @@
 {
   "@context": "https://schema.org",
   "@type": "Article",
-  "headline": "The Inference Substrate",
+  "headline": "The Stochastic CPU",
   "alternativeHeadline": "A field report on the cloud being built underneath Software 3.0",
   "description": "How the cloud is being rebuilt for agents: the agent-hour, the two-level cache, snapshot provenance, the Tokio benchmark, and a 2030 cloud bill.",
   "image": [
@@ -76,7 +76,7 @@
   },
   "publisher": {
     "@type": "Organization",
-    "name": "The Inference Substrate",
+    "name": "The Stochastic CPU",
     "logo": {
       "@type": "ImageObject",
       "url": "https://zozo123.github.io/inference-substrate/og-image.png"
@@ -415,7 +415,7 @@ footer ol li{padding:2px 0}
 @media print {
   @page {
     margin: 22mm 18mm 24mm 18mm;
-    @bottom-left { content: "Yossi Eliaz \2014 The Inference Substrate"; font-family: 'Source Serif 4', Georgia, serif; font-size: 9pt; color: #6B6259; }
+    @bottom-left { content: "Yossi Eliaz \2014 The Stochastic CPU"; font-family: 'Source Serif 4', Georgia, serif; font-size: 9pt; color: #6B6259; }
     @bottom-right { content: "incredibuild.com/inference-substrate"; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 9pt; color: #6B6259; }
   }
   html, body {
@@ -450,7 +450,75 @@ footer ol li{padding:2px 0}
 
 /* === chart figures === */
 figure.chart, figure.svg-fig { margin: 28px 0; padding: 0; }
-figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--serif); font-size: 14px; color: var(--muted); margin-top: 12px; line-height: 1.55; max-width: 64ch; }
+figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: var(--serif); font-weight: 600; color: var(--ink); }
+
+/* === TL;DR · six key numbers === */
+.keynums-head {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--muted);
+  margin: 0 0 24px 0;
+  letter-spacing: 0.01em;
+}
+#keynumbers { margin-bottom: 64px; scroll-margin-top: 80px; }
+.keynums {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 36px 40px;
+  margin: 8px 0 0 0;
+  padding: 32px 0 8px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.keynum {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+.keynum.is-visible { opacity: 1; transform: translateY(0); }
+.keynum .big {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 44px;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+}
+.keynum .label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+.keynum .plain {
+  font-family: var(--serif);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+  max-width: 32ch;
+}
+@media (max-width: 1023px) {
+  .keynums { grid-template-columns: repeat(2, 1fr); gap: 32px 32px; }
+  .keynum .big { font-size: 38px; }
+}
+@media (max-width: 560px) {
+  .keynums { grid-template-columns: 1fr; gap: 0; padding: 0; border-top: 1px solid var(--rule); border-bottom: none; }
+  .keynum { padding: 22px 0; border-bottom: 1px solid var(--rule); }
+  .keynum .big { font-size: 40px; }
+  .keynum .plain { max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .keynum { opacity: 1; transform: none; transition: none; }
+}
 </style>
 </head>
 <body>
@@ -458,7 +526,7 @@ figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--mono); f
 <div id="progress"></div>
 
 <header>
-  <span class="nameplate">The Inference Substrate</span>
+  <span class="nameplate">The Stochastic CPU</span>
   <nav>
     <a href="#prelude">Read</a>
     <a href="#timeline">Timeline</a>
@@ -472,11 +540,47 @@ figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--mono); f
 <main class="content">
 
 <div class="hero">
-  <h1>The Inference Substrate.</h1>
+  <h1>The Stochastic CPU.</h1>
   <p class="sub">A field report on the cloud that's being built underneath Software 3.0. From the agent-hour to the prompt-keyed cache to the three signatures on every 2030 merge.</p>
   <p class="byline">by Yossi Eliaz · at incredibuild and islo.dev · Tel Aviv · 2026</p>
   <p class="hero-meta" id="reading-meta"></p>
 </div>
+
+<section id="keynumbers" aria-labelledby="keynums-head">
+  <h2 id="keynums-head" class="keynums-head">Six numbers, before the prose.</h2>
+  <div class="keynums">
+    <div class="keynum" data-anim="count-up">
+      <div class="big">&gt;1,000&times;</div>
+      <div class="label">Cheaper inference</div>
+      <p class="plain">Frontier-quality answers cost a thousand times less than three years ago.</p>
+    </div>
+    <div class="keynum" data-anim="count-up">
+      <div class="big">14% &rarr; 95%</div>
+      <div class="label">Agent coding skill</div>
+      <p class="plain">Coding agents went from undergrad clumsy to better than most engineers in 27 months.</p>
+    </div>
+    <div class="keynum" data-anim="count-up">
+      <div class="big">3 seconds</div>
+      <div class="label">Agent feedback loop</div>
+      <p class="plain">What used to be a 46 second build becomes a 3 second one when the cache hits.</p>
+    </div>
+    <div class="keynum" data-anim="count-up">
+      <div class="big">12.5%</div>
+      <div class="label">Merged by agents</div>
+      <p class="plain">One in eight of Shopify's merged code changes is now coauthored by an AI agent.</p>
+    </div>
+    <div class="keynum" data-anim="count-up">
+      <div class="big">3 signatures</div>
+      <div class="label">On every 2030 merge</div>
+      <p class="plain">By 2030, regulated code carries proof of who asked, who wrote, and where it ran.</p>
+    </div>
+    <div class="keynum" data-anim="count-up">
+      <div class="big">40 / 25 / 15</div>
+      <div class="label">The new cloud bill</div>
+      <p class="plain">Inference, agent time, and cache will eat four fifths of an AI native company's cloud bill.</p>
+    </div>
+  </div>
+</section>
 
 <!-- §01 prelude -->
 <section id="prelude">
@@ -567,7 +671,7 @@ figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--mono); f
       <text class="annot-muted" x="614" y="48" text-anchor="end">2027 · 10²⁷  FORECAST</text>
       <text class="annot-muted" x="320" y="252" text-anchor="middle">Epoch AI: ~5× per year since 2020</text>
     </svg>
-    <figcaption>Training compute for frontier models, 2019 to forecast 2027. Epoch AI Notable Models database; ~5× per year since GPT-3.<sup class="fn"><a href="#fn5">5</a></sup></figcaption>
+    <figcaption><strong>Training compute, 5× a year.</strong> The math behind frontier models keeps multiplying — a million-fold jump from GPT-2 in 2019 to today, with no plateau in sight (Epoch AI<sup class="fn"><a href="#fn5">5</a></sup>).</figcaption>
   </figure>
 
   <p>None of the three sentences is about the model. All three land on the infrastructure.</p>
@@ -675,7 +779,7 @@ figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--mono); f
         <text x="26" y="34" class="legend">state lost</text>
       </g>
     </svg>
-    <figcaption>Container era versus microVM era. Stateless segments with broken continuity (top) versus one continuous agent trajectory with state preserved (bottom).</figcaption>
+    <figcaption><strong>Containers forget. MicroVMs remember.</strong> A container restarts every request and loses state; a microVM holds one agent's full thirty-minute working memory in a single continuous run.</figcaption>
   </figure>
 
   <p><em>State.</em> A container is stateless by convention. An agent has a scratchpad, a working tree, a tool history, and a context window worth keeping. Snapshotting that across a fleet of ephemeral runners is a new primitive — one that Modal, E2B, and a half-dozen startups are now charging for, at a documented 3× premium over their own serverless tier.<sup class="fn"><a href="#fn6">6</a></sup></p>
@@ -740,7 +844,7 @@ figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--mono); f
       <text class="value" x="406" y="143" text-anchor="start">50%+  FORECAST</text>
       <text class="annot-muted" x="195" y="149" text-anchor="end">2027 · industry consensus</text>
     </svg>
-    <figcaption>Agent-authored code adoption: Shopify merged PRs (2026), Google's "new code" share (Pichai, Q3 2024 and Q1 2025), and large-org consensus forecast for 2027.<sup class="fn"><a href="#fn8">8</a></sup><sup class="fn"><a href="#fn9">9</a></sup></figcaption>
+    <figcaption><strong>Machines are writing the code.</strong> Share of code authored by AI agents at major engineering orgs, rising from a Shopify sliver to a Google majority in two years (company disclosures<sup class="fn"><a href="#fn8">8</a></sup><sup class="fn"><a href="#fn9">9</a></sup>).</figcaption>
   </figure>
 
   <p>The workload that broke the container is already the dominant workload on the largest engineering orgs in the world. The infrastructure has not caught up.</p>
@@ -815,7 +919,7 @@ figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--mono); f
       <text class="annot" x="579" y="64" text-anchor="end">Opus 4.8 · $15</text>
       <text class="caption annot-muted" x="320" y="252" text-anchor="middle">&gt;1000× decline at equivalent quality (a16z &amp; Epoch AI, 2024–2026)</text>
     </svg>
-    <figcaption>Inference cost per million output tokens, 2023–2026. Frontier band (solid) versus equivalent-quality floor (dotted). a16z LLMflation; Epoch AI.<sup class="fn"><a href="#fn3">3</a></sup></figcaption>
+    <figcaption><strong>Same quality, a thousand times cheaper.</strong> Price per million output tokens at fixed capability collapsed from sixty dollars in 2023 to cents today, while frontier prices stay flat (a16z LLMflation<sup class="fn"><a href="#fn3">3</a></sup>).</figcaption>
   </figure>
 
   <p>The other half of why the agent-hour is solvent is that the work is worth doing. Devin 1.0 cleared 13.86% on SWE-bench in March 2024.<sup class="fn"><a href="#fn10">10</a></sup> Devin 2.0 hit roughly 45.8% on Verified by December.<sup class="fn"><a href="#fn11">11</a></sup> Claude Sonnet 4.5 reached 77.2% in September 2025, Claude Opus 4.7 hit 87.6% in April 2026, and Fable 5 sits at 95% as of June.<sup class="fn"><a href="#fn2">2</a></sup> Sometime in Q1 2026 the line crossed the human baseline. That crossing is what made SW 3.0 a deployment problem instead of a research problem.</p>
@@ -882,7 +986,7 @@ figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--mono); f
       <circle class="dot-ring" cx="585" cy="39.5" r="4.5"/>
       <text class="annot" x="615" y="36" text-anchor="end">Fable 5 · 95%</text>
     </svg>
-    <figcaption>SWE-bench Verified, Q1 2023 to Q2 2026. The dashed line is the ~85% human baseline; the ringed point is Fable 5 at 95%.<sup class="fn"><a href="#fn2">2</a></sup></figcaption>
+    <figcaption><strong>Agents passed the human bar.</strong> Scores on SWE-bench Verified, a real-world coding benchmark, climbed from 14% to 95% in two years and now exceed the 85% human baseline (Anthropic<sup class="fn"><a href="#fn2">2</a></sup>).</figcaption>
   </figure>
 
   <p>Walk the math for a single agent-hour at mid-2026 prices. A Sonnet-tier background loop issuing 200–600 round-trips, with 30K–150K-token contexts (80–95% cached) and 2K–8K output per call, lands between $1.20 and $8.50 per hour all-in. Sandbox compute is a rounding error on top.<sup class="fn"><a href="#fn7">7</a></sup> A fully-loaded software engineer is $80–$150 an hour. The ratio is 10× to 100× before you count parallelism.</p>
@@ -957,7 +1061,7 @@ figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--mono); f
         <text class="pct-tick" x="180" y="248" text-anchor="end">edit 1000</text>
       </g>
     </svg>
-    <figcaption>The two-level cache. Prompt-prefix on top (≈90% hit when prompts overlap), content-addressed on the bottom (hit rate falls as agents regenerate semantically-equivalent bytes). Fall-through from top to bottom.</figcaption>
+    <figcaption><strong>Two caches, two decay curves.</strong> Reused prompt prefixes hit ninety percent of the time; file-level caches degrade from seventy to thirty percent as an agent edits its way through a codebase.</figcaption>
   </figure>
 
   <p>Anthropic does this at the inference layer already. Prompt-cache reads are billed at 0.1× the input rate — a 90% discount — and writes are billed at 1.25× (5-minute TTL) or 2× (1-hour TTL). For Claude Opus 4.x that's $15 per million input tokens dropping to $1.50 on a cache hit.<sup class="fn"><a href="#fn7">7</a></sup> The catch is byte-identical prefix. The agent harness has to be disciplined about prefix stability or the whole discount evaporates.</p>
@@ -1007,7 +1111,7 @@ figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--mono); f
       </g>
       <text class="caption" x="0" y="208">Incredibuild internal measurement, 2025 · cargo test --workspace on Tokio</text>
     </svg>
-    <figcaption>cargo test --workspace on Tokio. Cold 46.0s, cached 12.0s, hot 3.0s. Incredibuild internal measurement, 2025.</figcaption>
+    <figcaption><strong>Warm starts are fifteen times faster.</strong> Time for an agent's edit-test loop: cold boot 46 seconds, cached image 12 seconds, hot snapshot 3 seconds (Incredibuild benchmark<sup class="fn"><a href="#fn13">13</a></sup>).</figcaption>
   </figure>
 
   <p>The interesting number is not 46. Anyone who has run a Rust test suite knows 46. The interesting number is 3, because 3 is the latency an agent sees when it edits one crate out of fifty and re-runs the workspace. The agent does that constantly — that's how agents work — and a 3-second loop is a usable interactive substrate, while a 46-second loop is a coffee break.</p>
@@ -1120,7 +1224,7 @@ figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--mono); f
         </g>
       </g>
     </svg>
-    <figcaption>Estimated share of cloud bill for an AI-native company, 2030.</figcaption>
+    <figcaption><strong>Where the 2030 cloud bill goes.</strong> Inference and agent runtime together swallow nearly two-thirds of spend; traditional servers shrink to a rounding error.</figcaption>
   </figure>
 
   <p>Compare that to 2023, where roughly 70% of a comparable bill was the legacy shape and inference barely cleared single digits. The reallocation is not gradual. It is the kind of shift that happens once a workload crosses a threshold, and the agent workload has crossed it.</p>
@@ -1165,6 +1269,7 @@ figure.chart figcaption, figure.svg-fig figcaption { font-family: var(--mono); f
 <aside class="rail" aria-hidden="true">
   <h4>In this essay</h4>
   <ol id="toc">
+    <li><a href="#keynumbers">Key numbers</a></li>
     <li><a href="#prelude">Prelude</a></li>
     <li><a href="#software-three">Software 3.0</a></li>
     <li><a href="#stochastic-cpu">Stochastic CPU</a></li>
@@ -1424,7 +1529,7 @@ Repo: <a href="https://github.com/zozo123/inference-substrate">github.com/zozo12
   // --- Share buttons ---
   (function initShare() {
     const url = window.location.href.split('#')[0];
-    const text = 'The Inference Substrate — by Yossi Eliaz. The cloud built underneath Software 3.0. ';
+    const text = 'The Stochastic CPU — by Yossi Eliaz. The cloud built underneath Software 3.0. ';
     const xBtn = document.getElementById('share-x');
     const liBtn = document.getElementById('share-li');
     const copyBtn = document.getElementById('share-copy');
@@ -1534,6 +1639,30 @@ Repo: <a href="https://github.com/zozo123/inference-substrate">github.com/zozo12
     if (kind === 'none') return;
     io.observe(fig);
   });
+})();
+</script>
+
+<script>
+// v4 TL;DR · key-numbers reveal
+(function () {
+  var tiles = document.querySelectorAll('#keynumbers .keynum[data-anim="count-up"]');
+  if (!tiles.length) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !('IntersectionObserver' in window)) {
+    tiles.forEach(function (t) { t.classList.add('is-visible'); });
+    return;
+  }
+  var revealed = 0;
+  var io = new IntersectionObserver(function (entries, obs) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var el = entry.target;
+      setTimeout(function () { el.classList.add('is-visible'); }, revealed * 80);
+      revealed++;
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  tiles.forEach(function (t) { io.observe(t); });
 })();
 </script>
 </body>
