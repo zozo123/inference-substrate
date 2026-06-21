@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OG — The Stochastic CPU</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+  :root{--cream:#FAF7F2;--ink:#1A1A1A;--rust:#B8430F;--rust-deep:#8A3209;--muted:#6B6259;--rule:#D9D2C7;}
+  html,body{margin:0;padding:0;background:#000;}
+  .card{width:1200px;height:630px;background:var(--cream);color:var(--ink);font-family:'Source Serif 4',Georgia,serif;position:relative;overflow:hidden;box-sizing:border-box;padding:64px 72px;display:grid;grid-template-columns:1fr 460px;grid-template-rows:auto 1fr auto;gap:0 56px;}
+  .card::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 20% 30%,rgba(184,67,15,0.025) 0,transparent 40%),radial-gradient(circle at 80% 70%,rgba(26,26,26,0.02) 0,transparent 40%);pointer-events:none;}
+  .card::after{content:"";position:absolute;right:0;top:0;bottom:0;width:520px;background-image:linear-gradient(to right,rgba(217,210,199,0.45) 1px,transparent 1px),linear-gradient(to bottom,rgba(217,210,199,0.45) 1px,transparent 1px);background-size:48px 48px;background-position:-1px -1px;mask-image:linear-gradient(to left,black 30%,transparent 100%);-webkit-mask-image:linear-gradient(to left,black 30%,transparent 100%);pointer-events:none;}
+  .top{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);position:relative;z-index:2;}
+  .top .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--rust);margin-right:10px;transform:translateY(-1px);}
+  .left{grid-column:1;grid-row:2;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;padding-right:24px;}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.22em;text-transform:uppercase;color:var(--rust);margin-bottom:22px;}
+  h1{font-family:'Source Serif 4',Georgia,serif;font-weight:600;font-size:112px;line-height:0.94;letter-spacing:-0.025em;margin:0 0 28px 0;color:var(--ink);}
+  h1 .the{font-style:italic;font-weight:400;color:var(--muted);font-size:88px;letter-spacing:-0.01em;display:block;margin-bottom:-6px;}
+  .dek{font-family:'Source Serif 4',Georgia,serif;font-size:22px;line-height:1.4;color:var(--ink);max-width:540px;font-weight:400;}
+  .dek em{color:var(--rust);font-style:normal;font-weight:600;}
+  .right-col{grid-column:2;grid-row:2;position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;}
+  .math-frame{border:1px solid var(--rust);padding:48px 40px 40px;width:100%;box-sizing:border-box;background:rgba(250,247,242,0.7);position:relative;}
+  .math-frame::before{content:"thesis";position:absolute;top:-10px;left:24px;background:var(--cream);padding:0 10px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--rust);}
+  .expr{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:96px;color:var(--rust-deep);letter-spacing:-0.02em;line-height:1;text-align:center;}
+  .expr .neq{color:var(--rust);font-weight:600;margin:0 6px;}
+  .caption{margin-top:28px;font-family:'Source Serif 4',Georgia,serif;font-style:italic;font-size:19px;line-height:1.42;color:var(--muted);text-align:left;max-width:380px;}
+  .caption strong{color:var(--ink);font-weight:600;font-style:normal;}
+  .bottom{grid-column:1/-1;grid-row:3;border-top:1px solid var(--rule);padding-top:22px;display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:2;}
+  .byline{font-family:'Source Serif 4',Georgia,serif;font-size:18px;color:var(--ink);}
+  .byline .name{font-weight:600;}
+  .byline .meta{color:var(--muted);font-style:italic;}
+  .url{font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:0.06em;color:var(--muted);}
+  .url .arrow{color:var(--rust);margin-right:8px;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="top">
+      <div><span class="dot"></span>Field Report · 2026</div>
+      <div class="right">Vol. 01 / Software 3.0</div>
+    </div>
+    <div class="left">
+      <div class="eyebrow">A field report</div>
+      <h1><span class="the">The</span>Stochastic<br>CPU.</h1>
+      <div class="dek">The cloud is being rebuilt for AI agents. The LLM is a <em>non-deterministic CPU</em> — every layer above it has to change.</div>
+    </div>
+    <div class="right-col">
+      <div class="math-frame">
+        <div class="expr">f(x)<span class="neq">≠</span>y</div>
+      </div>
+      <div class="caption">For the first time, <strong>the new CPU is stochastic.</strong> Same input, different output. The stack we built for determinism does not survive contact.</div>
+    </div>
+    <div class="bottom">
+      <div class="byline"><span class="name">Yossi Eliaz</span> <span class="meta">· at incredibuild and islo.dev · Tel Aviv</span></div>
+      <div class="url"><span class="arrow">→</span>zozo123.github.io/stochastic-cpu</div>
+    </div>
+  </div>
+</body>
+</html>
