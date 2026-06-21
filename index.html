@@ -918,6 +918,211 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
   <p>The workload that broke the container is already the dominant workload at the largest engineering orgs in the world. The infrastructure has not caught up.</p>
 </section>
 
+<!-- §03b sandbox-primitive (paradigm) -->
+<section id="sandbox-primitive">
+  <h2><span class="num">03b</span> The sandbox. <a class="copy" href="#sandbox-primitive" aria-label="Link to this section">¶</a></h2>
+
+  <p>Compute has fractured its unit four times. The fourth fracture is the one that matters here.</p>
+
+  <p>Mainframes treated the machine as the unit. Many humans queued for one box, time sliced. Servers cut the unit down to the process: one daemon per service, scaled horizontally across cheap hardware. Containers cut it again, down to the request: ephemeral, stateless, immortal in aggregate but disposable individually. Each fracture made the unit smaller and, oddly, more stateful in what surrounded it. The sandbox is the fourth fracture. The unit is no longer the machine, the process, or the request. The unit is the task.</p>
+
+  <p>A task thinks for thirty minutes. It sleeps for six hours. It wakes up mid sentence. It has an identity that survives across the gap. The previous three units could not do this, and were never asked to.</p>
+
+  <div class="callout">The unit of compute is now cognitive.</div>
+
+  <p><em>A sandbox is what compute looks like when the unit is a task instead of a request.</em></p>
+
+  <p>Each prior unit carried an assumption that the sandbox quietly breaks. The VM assumed work was a server: long lived, network attached, identified by an address. The container assumed work was a request: short, stateless, addressed by a load balancer that did not care which copy answered. The function assumed work was a transaction: a few hundred milliseconds, no memory of yesterday, no expectation of tomorrow. The sandbox assumes work is a train of thought. It can be interrupted. It can be resumed. It must be the same train when it comes back, or the work is wasted.</p>
+
+  <p>This changes what the lifecycle paragraph is even about. Cold, warm, idle, paused, archived, evicted are no longer engineering states of a box. They are verbs of a thinking thing. Cold means the thought has not started. Warm means it is loaded and ready to continue. Idle is the pause between sentences. Paused is sleep. Archived is long term memory, retrievable but slow. Evicted is forgetting. (I realize this sounds a little overwrought, but the API surface really does look like this once you stop pretending it is a container.) The interesting numbers are quiet ones: Firecracker cold boots in roughly 125 ms, snapshot resumes land in 5 to 30 ms, and Modal restores a loaded PyTorch process in about a second. Those are not infrastructure benchmarks. They are the latency of waking up.</p>
+
+  <figure class="svg-fig" data-anim="fade-up">
+    <svg viewBox="0 0 720 200" width="100%" role="img"
+         aria-label="Sandbox lifecycle. Cold boots to warm in roughly 125 ms. Warm goes idle when no command is running. Idle pauses to a memory snapshot in seconds. Paused resumes to warm in 5 to 30 ms. Paused archives to object storage after 7 days. Archived evicts after 30 days."
+         style="font-family:'Source Serif 4','Source Serif Pro',Charter,Georgia,serif;display:block">
+      <style>
+        .lc-node { fill: #FAF7F2; stroke: #1A1A1A; stroke-width: 1; }
+        .lc-node-warm { fill: #FAF7F2; stroke: #B8430F; stroke-width: 1.25; }
+        .lc-label { font: 600 12px 'Source Serif 4', serif; fill: #1A1A1A; }
+        .lc-meta  { font: 10px 'JetBrains Mono', ui-monospace, Menlo, monospace; fill: #6B6259; }
+        .lc-arrow { stroke: #6B6259; stroke-width: 1; fill: none; }
+        .lc-arrow-hot { stroke: #B8430F; stroke-width: 1.25; fill: none; }
+        .lc-time  { font: 10px 'JetBrains Mono', ui-monospace, Menlo, monospace; fill: #1A1A1A; }
+        .lc-time-hot { font: 10px 'JetBrains Mono', ui-monospace, Menlo, monospace; fill: #B8430F; font-weight: 600; }
+      </style>
+      <defs>
+        <marker id="lc-tip" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#6B6259"/>
+        </marker>
+        <marker id="lc-tip-hot" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#B8430F"/>
+        </marker>
+      </defs>
+
+      <g transform="translate(20,80)">
+        <rect class="lc-node" width="90" height="44" rx="2"/>
+        <text x="45" y="20" text-anchor="middle" class="lc-label">cold</text>
+        <text x="45" y="34" text-anchor="middle" class="lc-meta">no VM</text>
+      </g>
+      <g transform="translate(140,80)">
+        <rect class="lc-node-warm" width="90" height="44" rx="2"/>
+        <text x="45" y="20" text-anchor="middle" class="lc-label">warm</text>
+        <text x="45" y="34" text-anchor="middle" class="lc-meta">running</text>
+      </g>
+      <g transform="translate(260,80)">
+        <rect class="lc-node-warm" width="90" height="44" rx="2"/>
+        <text x="45" y="20" text-anchor="middle" class="lc-label">idle</text>
+        <text x="45" y="34" text-anchor="middle" class="lc-meta">no cmd</text>
+      </g>
+      <g transform="translate(380,80)">
+        <rect class="lc-node" width="90" height="44" rx="2"/>
+        <text x="45" y="20" text-anchor="middle" class="lc-label">paused</text>
+        <text x="45" y="34" text-anchor="middle" class="lc-meta">snapshot</text>
+      </g>
+      <g transform="translate(500,80)">
+        <rect class="lc-node" width="90" height="44" rx="2"/>
+        <text x="45" y="20" text-anchor="middle" class="lc-label">archived</text>
+        <text x="45" y="34" text-anchor="middle" class="lc-meta">object store</text>
+      </g>
+      <g transform="translate(620,80)">
+        <rect class="lc-node" width="80" height="44" rx="2"/>
+        <text x="40" y="20" text-anchor="middle" class="lc-label">evicted</text>
+        <text x="40" y="34" text-anchor="middle" class="lc-meta">gone</text>
+      </g>
+
+      <line class="lc-arrow" x1="110" y1="102" x2="138" y2="102" marker-end="url(#lc-tip)"/>
+      <text x="124" y="94" text-anchor="middle" class="lc-time">~125 ms</text>
+
+      <line class="lc-arrow" x1="230" y1="102" x2="258" y2="102" marker-end="url(#lc-tip)"/>
+      <text x="244" y="94" text-anchor="middle" class="lc-time">15 min</text>
+
+      <line class="lc-arrow" x1="350" y1="102" x2="378" y2="102" marker-end="url(#lc-tip)"/>
+      <text x="364" y="94" text-anchor="middle" class="lc-time">~4 s / GiB</text>
+
+      <path class="lc-arrow-hot" d="M 425 76 C 425 50, 200 50, 185 76" marker-end="url(#lc-tip-hot)"/>
+      <text x="305" y="46" text-anchor="middle" class="lc-time-hot">5 to 30 ms resume</text>
+
+      <line class="lc-arrow" x1="470" y1="102" x2="498" y2="102" marker-end="url(#lc-tip)"/>
+      <text x="484" y="94" text-anchor="middle" class="lc-time">7 days</text>
+
+      <line class="lc-arrow" x1="590" y1="102" x2="618" y2="102" marker-end="url(#lc-tip)"/>
+      <text x="604" y="94" text-anchor="middle" class="lc-time">30 days</text>
+
+      <text x="20" y="172" class="lc-meta">filesystem survives cold to warm · memory survives warm and paused · filesystem survives paused to archived · nothing survives evicted</text>
+    </svg>
+    <figcaption><strong>The lifecycle of a thinking thing.</strong> Read the states as verbs of a mind, not a machine. Paused resumes to warm in 5 to 30 ms anywhere on the fleet, which is the move that makes the whole thing work.</figcaption>
+  </figure>
+
+  <p>A small supply chain has formed around this primitive. Modal sells the warm start path for Python and ML workloads. E2B sells sandboxes tuned for code writing agents, with paused state held for thirty days. Daytona sells developer environments that auto archive after seven days of silence. Tensorlake sells sandboxed document and data work for retrieval pipelines. Fly Sprites sells fast sandboxes welded to a global edge. islo.dev (which I work on, so take the placement with appropriate salt) sells the runtime as a metered hour rather than a server. Six vendors, one shared bet: that the task, not the request, is the thing worth selling.</p>
+
+  <p>It is worth saying plainly what this is. For sixty years compute has been a substrate that humans rented to run programs they wrote. The sandbox is the first substrate designed to be rented by something that is itself thinking. That is a civilizational shift in who the customer of compute actually is, and it has happened in roughly eighteen months.</p>
+
+  <p>Once the unit of compute is cognitive, the unit of billing has to be cognitive too. That is the agent hour.</p>
+</section>
+
+
+<!-- §03b sandbox-primitive -->
+<section id="sandbox-primitive">
+  <h2><span class="num">03b</span> The sandbox. <a class="copy" href="#sandbox-primitive" aria-label="Link to this section">¶</a></h2>
+
+  <p>Containers broke. What replaced them is a primitive the cloud did not have a name for in 2023. Every vendor in this section now sells a flavor of it.</p>
+
+  <p><em>A sandbox is a microVM that boots in tens of milliseconds, captures its full memory and filesystem in a snapshot, resumes from that snapshot anywhere on the fleet, and bills per second of wall clock time.</em></p>
+
+  <p>Mechanically it is a hardware isolated guest under a tiny userspace VMM. Firecracker is the canonical kernel, written in Rust by AWS, with a ~120 host syscall surface and a ~5 MiB memory floor per VM (per Firecracker docs, 2026). Cold boot is around 125 ms to userspace, snapshot restore is 5 to 30 ms, and a single host can launch up to 150 microVMs per second (per Firecracker docs, 2026). Kata Containers wraps the same idea in a CRI shim so Kubernetes can schedule it. gVisor takes the cheaper road, intercepting syscalls in a Go process called Sentry, trading 10 to 30% runtime overhead for no kernel boot and no nested virtualization requirement (per gVisor docs, 2026). Cloud Hypervisor is the rising alternative when GPU passthrough or userfaultfd lazy paging matters. Underneath all of them sit VT-x, EPT, and the IOMMU. A container escape is a kernel bug in one shared kernel. A microVM escape has to traverse a guest kernel, a tiny VMM, and the IOMMU before it touches the host. That is the actual security boundary.</p>
+
+  <p>It is the category between a container and a VM. A container is a chroot with cgroups. No kernel boundary, single digit millisecond start, no real memory snapshot. A VM is the opposite. Full hardware boundary, minute scale boot, designed to hum for months. The sandbox sits in the middle on every axis and was never the design center of either. It is what you build when the workload thinks for thirty minutes, sleeps for six hours, and resumes mid thought somewhere else on the fleet.</p>
+
+  <div class="callout">A sandbox is a microVM that remembers.</div>
+
+  <p>What it replaces is three assumptions, not one. The container assumed a request that returns, so its state model is "throw it away." That fails the moment an agent has a working tree, a tool history, and a context window worth keeping. The VM assumed a workload that hums for months, so its boot budget is generous and its cost model is committed instances. That fails the moment you need a fresh isolated environment per agent attempt, fanned out a hundred wide. The serverless function assumed a request that returns in seconds with no state between calls. That fails the moment the agent loop runs for half an hour and the cache prefix matters more than the cold start. The sandbox keeps the isolation of the VM, the start time of the function, and adds a snapshot primitive neither had.</p>
+
+  <p>The lifecycle is the thing most teams have not internalized yet. A sandbox is not running or off. It walks through six states, and what survives each transition is different.</p>
+
+  <figure class="svg-fig" data-anim="fade-up">
+    <svg viewBox="0 0 720 200" width="100%" role="img"
+         aria-label="Sandbox lifecycle. Cold boots to warm in roughly 125 ms. Warm goes idle when no command is running. Idle pauses to a memory snapshot in seconds. Paused resumes to warm in 5 to 30 ms. Paused archives to object storage after 7 days. Archived evicts after 30 days."
+         style="font-family:'Source Serif 4','Source Serif Pro',Charter,Georgia,serif;display:block">
+      <style>
+        .lc-node { fill: #FAF7F2; stroke: #1A1A1A; stroke-width: 1; }
+        .lc-node-warm { fill: #FAF7F2; stroke: #B8430F; stroke-width: 1.25; }
+        .lc-label { font: 600 12px 'Source Serif 4', serif; fill: #1A1A1A; }
+        .lc-meta  { font: 10px 'JetBrains Mono', ui-monospace, Menlo, monospace; fill: #6B6259; }
+        .lc-arrow { stroke: #6B6259; stroke-width: 1; fill: none; }
+        .lc-arrow-hot { stroke: #B8430F; stroke-width: 1.25; fill: none; }
+        .lc-time  { font: 10px 'JetBrains Mono', ui-monospace, Menlo, monospace; fill: #1A1A1A; }
+        .lc-time-hot { font: 10px 'JetBrains Mono', ui-monospace, Menlo, monospace; fill: #B8430F; font-weight: 600; }
+      </style>
+      <defs>
+        <marker id="lc-tip" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#6B6259"/>
+        </marker>
+        <marker id="lc-tip-hot" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#B8430F"/>
+        </marker>
+      </defs>
+
+      <g transform="translate(20,80)">
+        <rect class="lc-node" width="90" height="44" rx="2"/>
+        <text x="45" y="20" text-anchor="middle" class="lc-label">cold</text>
+        <text x="45" y="34" text-anchor="middle" class="lc-meta">no VM</text>
+      </g>
+      <g transform="translate(140,80)">
+        <rect class="lc-node-warm" width="90" height="44" rx="2"/>
+        <text x="45" y="20" text-anchor="middle" class="lc-label">warm</text>
+        <text x="45" y="34" text-anchor="middle" class="lc-meta">running</text>
+      </g>
+      <g transform="translate(260,80)">
+        <rect class="lc-node-warm" width="90" height="44" rx="2"/>
+        <text x="45" y="20" text-anchor="middle" class="lc-label">idle</text>
+        <text x="45" y="34" text-anchor="middle" class="lc-meta">no cmd</text>
+      </g>
+      <g transform="translate(380,80)">
+        <rect class="lc-node" width="90" height="44" rx="2"/>
+        <text x="45" y="20" text-anchor="middle" class="lc-label">paused</text>
+        <text x="45" y="34" text-anchor="middle" class="lc-meta">snapshot</text>
+      </g>
+      <g transform="translate(500,80)">
+        <rect class="lc-node" width="90" height="44" rx="2"/>
+        <text x="45" y="20" text-anchor="middle" class="lc-label">archived</text>
+        <text x="45" y="34" text-anchor="middle" class="lc-meta">object store</text>
+      </g>
+      <g transform="translate(620,80)">
+        <rect class="lc-node" width="80" height="44" rx="2"/>
+        <text x="40" y="20" text-anchor="middle" class="lc-label">evicted</text>
+        <text x="40" y="34" text-anchor="middle" class="lc-meta">gone</text>
+      </g>
+
+      <line class="lc-arrow" x1="110" y1="102" x2="138" y2="102" marker-end="url(#lc-tip)"/>
+      <text x="124" y="94" text-anchor="middle" class="lc-time">~125 ms</text>
+
+      <line class="lc-arrow" x1="230" y1="102" x2="258" y2="102" marker-end="url(#lc-tip)"/>
+      <text x="244" y="94" text-anchor="middle" class="lc-time">15 min</text>
+
+      <line class="lc-arrow" x1="350" y1="102" x2="378" y2="102" marker-end="url(#lc-tip)"/>
+      <text x="364" y="94" text-anchor="middle" class="lc-time">~4 s / GiB</text>
+
+      <path class="lc-arrow-hot" d="M 425 76 C 425 50, 200 50, 185 76" marker-end="url(#lc-tip-hot)"/>
+      <text x="305" y="46" text-anchor="middle" class="lc-time-hot">5 to 30 ms resume</text>
+
+      <line class="lc-arrow" x1="470" y1="102" x2="498" y2="102" marker-end="url(#lc-tip)"/>
+      <text x="484" y="94" text-anchor="middle" class="lc-time">7 days</text>
+
+      <line class="lc-arrow" x1="590" y1="102" x2="618" y2="102" marker-end="url(#lc-tip)"/>
+      <text x="604" y="94" text-anchor="middle" class="lc-time">30 days</text>
+
+      <text x="20" y="172" class="lc-meta">filesystem survives cold→warm (image pull) · memory survives warm↔paused (snapshot) · filesystem survives paused→archived · nothing survives evicted</text>
+    </svg>
+    <figcaption><strong>The sandbox lifecycle.</strong> Cold boots to warm in around 125 ms. Idle pauses to a memory snapshot at roughly 4 seconds per gigabyte of RAM. Paused resumes to warm in 5 to 30 ms anywhere on the fleet, which is the move that makes the whole thing work. Archive and eviction are Daytona's defaults (per Daytona docs, 2026). Boot and resume numbers from Firecracker and E2B docs, 2026.</figcaption>
+  </figure>
+
+  <p>Note what does and doesn't survive. The filesystem lives through cold to warm. Memory lives through warm to paused and back, including loaded variables, tmux sessions, and open files. Outbound TCP connections die on pause and have to be reopened by the client (per E2B and Modal docs, 2026). On archive the memory is dropped and only the filesystem persists. On eviction nothing survives. The implication for agent runtimes is that any in flight HTTP call held by the agent at pause time has to be re driven by a durable layer above the sandbox. The sandbox is the checkpoint. The event log is the truth.</p>
+
+  <p>The supply chain in 2026 looks roughly like this. Modal sells raw serverless compute and a sandbox SKU at a 3× premium over its own standard tier ($0.142 per physical core hour, per Modal pricing, 2026). E2B sells Firecracker microVMs you can pause and resume by name, around $0.165 per hour for a 2 vCPU 4 GiB box, capped at 100 concurrent on Pro (per E2B pricing, 2026). Daytona sells sub 90 ms code to execution on a pre warmed Docker pool, with hard idle and archive defaults built in (per Daytona docs, 2026). Tensorlake sells the long sandbox: pause and resume on the same microVM, with running processes and tmux sessions intact for weeks. Fly Sprites are persistent Firecracker microVMs with 100 GB NVMe and sub second checkpoint restore. islo.dev sells the agent computer plus persistence plus a secrets gateway that injects tokens at egress so the agent never holds them, deployable on Islo cloud, your cloud, or your infra. (I run islo.dev, so weight that accordingly.) Cursor and Cognition build their own runtimes on top of these primitives because their entire product thesis is the sandbox UX. Build versus buy is a real decision now, and the answer for almost everyone is buy, because the orchestrator (snapshot storage, pause and resume, networking, egress, auth, billing, fleet health) is where the six to twelve months of work lives.</p>
+
+  <p>One unit ties all of these vendors together. They meter per second of wall clock, not per request. Modal's sandbox SKU is priced in core seconds and gibibyte seconds. E2B and Daytona quote vCPU hours that decompose to seconds. Fly Sprites pause the clock when the agent is idle. islo bills the same way. The sandbox second is the new unit of cloud compute, and the next section is about what happens when you aggregate it into an hour and put that hour on an invoice.<sup class="fn"><a href="#fn6">6</a></sup></p>
+</section>
+
 <!-- §04 agent-hour -->
 <section id="agent-hour">
   <h2><span class="num">04</span> The agent hour <a class="copy" href="#agent-hour" aria-label="Link to this section">¶</a></h2>
@@ -2355,6 +2560,7 @@ Sandbox: $0.10.</p>
     <li><a href="#software-three">Software 3.0</a></li>
     <li><a href="#stochastic-cpu">Stochastic CPU</a></li>
     <li><a href="#the-break">What broke</a></li>
+    <li><a href="#sandbox-primitive">The sandbox</a></li>
     <li><a href="#agent-hour">Agent hour</a></li>
     <li><a href="#sandbox-fleet">Sandbox fleet · live</a></li>
     <li><a href="#two-level-cache">Two level cache</a></li>
