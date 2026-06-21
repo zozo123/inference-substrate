@@ -520,6 +520,75 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 @media (prefers-reduced-motion: reduce) {
   .keynum { opacity: 1; transform: none; transition: none; }
 }
+
+#tldr-points {
+  margin: 8px 0 64px 0;
+  padding: 32px 0 8px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  scroll-margin-top: 80px;
+}
+#tldr-points .tldr-marker {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin: 0 0 18px 0;
+  font-style: normal;
+}
+#tldr-points .tldr-lede {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.45;
+  color: var(--ink);
+  margin: 0 0 24px 0;
+  max-width: 64ch;
+  letter-spacing: -0.005em;
+}
+#tldr-points .tldr-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-width: 64ch;
+}
+#tldr-points .tldr-list li {
+  position: relative;
+  padding: 8px 0 8px 22px;
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink);
+  border-bottom: 1px dotted var(--rule);
+}
+#tldr-points .tldr-list li:last-child {
+  border-bottom: 0;
+  font-style: italic;
+  color: var(--ink);
+}
+#tldr-points .tldr-list li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 16px;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+}
+#tldr-points .tldr-list li strong {
+  font-family: var(--serif);
+  font-weight: 600;
+  color: var(--ink);
+}
+@media (max-width: 767px) {
+  #tldr-points { padding: 24px 0 4px 0; margin-bottom: 48px; }
+  #tldr-points .tldr-lede { font-size: 18px; }
+  #tldr-points .tldr-list li { font-size: 16px; padding-left: 20px; }
+  #tldr-points .tldr-list li::before { top: 15px; }
+}
 </style>
 </head>
 <body>
@@ -546,6 +615,21 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
   <p class="byline">By <a href="https://www.linkedin.com/in/yossi-eliaz/">Yossi Eliaz</a> · at incredibuild and <a href="https://islo.dev">islo.dev</a> · Tel Aviv · 2026</p>
   <p class="hero-meta" id="reading-meta"></p>
 </div>
+
+<section id="tldr-points" aria-labelledby="tldr-marker">
+  <p id="tldr-marker" class="tldr-marker">In one sentence, then seven beats.</p>
+  <p class="tldr-lede">The LLM is the first nondeterministic computer in production, and every layer of the cloud above it has to be rebuilt.</p>
+  <ul class="tldr-list">
+    <li>Frontier quality answers cost <strong>more than 1,000×</strong> less than they did in 2023.</li>
+    <li>Coding agents on SWE-bench Verified went from <strong>14% to 95%</strong> in 27 months, crossing the <strong>85%</strong> human baseline in Q1 2026.</li>
+    <li>Agents now coauthor <strong>12.5%</strong> of merged PRs at Shopify and (!) about <strong>75%</strong> of new code at Google, per Pichai in Q1 2026.</li>
+    <li>The agent hour becomes a billing line item at all <strong>three</strong> hyperscalers by 2027.</li>
+    <li>By 2030 the AI native cloud bill splits roughly <strong>40 / 25 / 15 / 10 / 5</strong> across inference, agent runtime, snapshots, eval, and legacy compute.</li>
+    <li>Regulated merges carry <strong>three signatures</strong> by 2030: human, agent, platform.</li>
+    <li>The direction is clear, the dates are not, and the substrate is being poured underneath teams that still think they ship software.</li>
+    <li>This may be the most consequential rewrite of computing in <strong>60</strong> years.</li>
+  </ul>
+</section>
 
 <section id="keynumbers" aria-labelledby="keynums-head">
   <h2 id="keynums-head" class="keynums-head">Six numbers, before the prose.</h2>
@@ -2236,7 +2320,7 @@ Sandbox: $0.10.</p>
 <section id="closing">
   <h2><span class="num">10</span> Closing <a class="copy" href="#closing" aria-label="Link to this section">¶</a></h2>
 
-  <p>Software 1.0 was humans writing for machines. Software 2.0 was data writing weights. Software 3.0 is humans writing for models that write for machines.</p>
+  <p>Software 1.0 was humans writing for machines. Software 2.0 was data writing weights. Software 3.0 is humans writing for models that write for machines. Software 3.5 is already here in the agent loop. Models write prompts for models that write code for machines, and the human moves up the abstraction one more notch.</p>
 
   <p>The model in the middle is a stochastic CPU, and every layer above it was built on a guarantee the new CPU doesn't provide. The cache misses. The test flakes. The build's reproducibility moves from the binary up to the invocation. The commit grows from one signature to three. The invoice grows a line item with a unit nobody priced in 2023. A smarter model would have left the substrate alone. A stochastic one rewrites it.</p>
 
@@ -2265,6 +2349,7 @@ Sandbox: $0.10.</p>
 <aside class="rail" aria-hidden="true">
   <h4>In this essay</h4>
   <ol id="toc">
+    <li><a href="#tldr-points">TL;DR</a></li>
     <li><a href="#keynumbers">Key numbers</a></li>
     <li><a href="#prelude">Prelude</a></li>
     <li><a href="#software-three">Software 3.0</a></li>
