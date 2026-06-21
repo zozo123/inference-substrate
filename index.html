@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Stochastic CPU — A field report on the cloud underneath Software 3.0</title>
 <meta name="description" content="How the cloud is being rebuilt for agents: the agent-hour, the two-level cache, snapshot provenance, and a 2030 cloud bill. A field report by Yossi Eliaz.">
-<meta name="author" content="Yossi Eliaz · at incredibuild and islo.dev · Tel Aviv">
+<meta name="author" content="Yossi Eliaz · Principal Engineer at Incredibuild · Founder, islo.dev">
 <meta name="theme-color" content="#FAF7F2">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1">
@@ -29,7 +29,7 @@
 <!-- Article -->
 <meta property="article:published_time" content="2026-06-21T00:00:00Z">
 <meta property="article:modified_time" content="2026-06-21T00:00:00Z">
-<meta property="article:author" content="Yossi Eliaz · at incredibuild and islo.dev · Tel Aviv">
+<meta property="article:author" content="https://www.linkedin.com/in/yossi-eliaz/">
 <meta property="article:section" content="Engineering">
 <meta property="article:tag" content="Software 3.0">
 <meta property="article:tag" content="Agents">
@@ -62,17 +62,19 @@
   "author": {
     "@type": "Person",
     "name": "Yossi Eliaz",
+    "jobTitle": "Principal Engineer",
     "affiliation": [
       {
         "@type": "Organization",
-        "name": "incredibuild"
+        "name": "Incredibuild"
       },
       {
         "@type": "Organization",
         "name": "islo.dev"
       }
     ],
-    "url": "https://islo.dev"
+    "url": "https://islo.dev",
+    "sameAs": ["https://www.linkedin.com/in/yossi-eliaz/"]
   },
   "publisher": {
     "@type": "Organization",
@@ -542,7 +544,7 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 <div class="hero">
   <h1>The Stochastic CPU.</h1>
   <p class="sub">A field report on the cloud that's being built underneath Software 3.0. From the agent-hour to the prompt-keyed cache to the three signatures on every 2030 merge.</p>
-  <p class="byline">by Yossi Eliaz · at incredibuild and islo.dev · Tel Aviv · 2026</p>
+  <p class="byline">By <a href="https://www.linkedin.com/in/yossi-eliaz/">Yossi Eliaz</a> · Principal Engineer at Incredibuild · Founder, <a href="https://islo.dev">islo.dev</a> · Tel Aviv · 2026</p>
   <p class="hero-meta" id="reading-meta"></p>
 </div>
 
@@ -1054,7 +1056,9 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 <section id="tokio">
   <h2><span class="num">06</span> The Tokio benchmark <a class="copy" href="#tokio" aria-label="Link to this section">¶</a></h2>
 
-  <p>The two-level cache works in principle. Here is one number for it in practice. We ran <code>cargo test --workspace</code> on Tokio three ways. Cold: 46 seconds. Warm content-hash cache: 12 seconds. Hot two-level cache, prompt-prefix layer included: 3 seconds.<sup class="fn"><a href="#fn13">13</a></sup></p>
+  <p>Given the two-level cache works in principle, here is one number. We ran <code>cargo test --workspace</code> on Tokio three ways. Cold: 46.0 seconds. Warm content-hash cache: 12.0 seconds. Hot two-level cache, prompt-prefix layer included: 3.0 seconds.<sup class="fn"><a href="#fn13">13</a></sup></p>
+
+  <p>The 46 is project-specific. Tokio is a particular workspace; a different repo gives you a different cold build. The number to watch is 3, because 3 is what an agent sees when it edits one crate out of fifty and re-runs the workspace. Agents iterate like this constantly: edit, run tests, edit, run tests.</p>
 
   <figure class="svg-fig" data-anim="tokio-bars">
     <svg viewBox="0 0 720 220" width="100%" role="img"
@@ -1093,11 +1097,13 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
     <figcaption><strong>Warm starts are fifteen times faster.</strong> Time for an agent's edit-test loop: cold boot 46 seconds, cached image 12 seconds, hot snapshot 3 seconds (Incredibuild benchmark<sup class="fn"><a href="#fn13">13</a></sup>).</figcaption>
   </figure>
 
-  <p>The interesting number isn't 46. Anyone who has run a Rust test suite kind of knows 46 in their bones. The interesting number is 3, because 3 is the latency an agent sees when 47 of 50 crates are untouched and it re-runs the workspace. The agent does that constantly — that's how agents work. A 3-second loop keeps the agent in the same call frame. Forty-six seconds is long enough that the agent's harness, the human watching it, and the CI runner all context-switch out.</p>
+  <p>At 3 seconds the agent stays in the call frame. At 46 seconds the agent harness, the human watching, and the CI runner all context-switch out, and once you have context-switched out, the next iteration costs more than just the build delta. The wall-clock difference is fifteen times; the behavioral difference is larger than that.</p>
 
-  <p>What the two-level cache does on Tokio is collapse the dominant case. The bottom cache catches the unchanged crates. The top cache catches the agent's regenerated file as semantically equivalent to last call. The remaining work is the small set of crates that actually moved. The break-even point — where the prompt-prefix cache starts paying back the cost of running it — comes around the third or fourth iteration of the agent on the same codebase.</p>
+  <p>The mechanism is the two layers doing their separate jobs. The bottom (content-addressed) cache catches the 47 unchanged crates. The top (prompt-prefix) cache catches the one regenerated file as semantically equivalent to the previous call. The work left over is the actual delta, which is roughly what 3 seconds buys.</p>
 
-  <p>3 seconds is the loop latency at which the agent stays in the call frame instead of falling out of it. The benchmark number is a side effect of that property.</p>
+  <p>This is one repo. The same shape recurs on any monorepo where an agent is the dominant editor. The break-even point, where the prompt-prefix cache pays back the cost of running it, comes around the third or fourth iteration on the same codebase. After that, every loop is on the 3-second side.</p>
+
+  <p>Three seconds is what makes the agent loop a loop. Forty-six seconds is what makes it a coffee break.</p>
 </section>
 
 <!-- §07 provenance -->
@@ -1295,7 +1301,7 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 <div class="wrap">
 <p id="sources"><strong>Sources &amp; footnotes</strong></p>
 <ol id="footnotes"></ol>
-<p style="margin-top:24px">Written by Yossi Eliaz · at incredibuild and <a href="https://islo.dev">islo.dev</a> · Tel Aviv, 2026.<br>
+<p style="margin-top:24px">Written by <a href="https://www.linkedin.com/in/yossi-eliaz/">Yossi Eliaz</a> · Principal Engineer at Incredibuild · Founder, <a href="https://islo.dev">islo.dev</a>. Tel Aviv, 2026.<br>
 Repo: <a href="https://github.com/zozo123/stochastic-cpu">github.com/zozo123/stochastic-cpu</a> · CC BY 4.0.</p>
 </div>
 </footer>
