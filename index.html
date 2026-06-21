@@ -1546,6 +1546,113 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 </script>
 </section>
 
+<section id="how-it-adds-up" class="explainer">
+  <style>
+    #how-it-adds-up {
+      border: 1px solid #D9D2C7;
+      padding: 22px;
+      margin: 24px 0;
+    }
+    #how-it-adds-up h3 {
+      font-family: var(--serif), "Source Serif 4", Georgia, serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 18px;
+    }
+    #how-it-adds-up h4 {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #B8430F;
+      margin: 0 0 8px;
+    }
+    #how-it-adds-up .explainer-grid {
+      display: block;
+    }
+    #how-it-adds-up .explainer-col + .explainer-col {
+      margin-top: 24px;
+    }
+    @media (min-width: 720px) {
+      #how-it-adds-up .explainer-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 28px;
+      }
+      #how-it-adds-up .explainer-col + .explainer-col {
+        margin-top: 0;
+      }
+    }
+    #how-it-adds-up p {
+      font-size: 14px;
+      line-height: 1.55;
+      color: #1A1A1A;
+      margin: 0 0 14px;
+    }
+    #how-it-adds-up code {
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      background: rgba(184, 67, 15, 0.06);
+      padding: 1px 4px;
+      border-radius: 2px;
+    }
+    #how-it-adds-up pre {
+      margin: 0 0 14px;
+      overflow-x: auto;
+    }
+    #how-it-adds-up pre code {
+      display: block;
+      background: rgba(184, 67, 15, 0.06);
+      padding: 14px 18px;
+      white-space: pre;
+      font-size: 12.5px;
+      border-radius: 2px;
+    }
+  </style>
+  <h3>How it adds up</h3>
+  <div class="explainer-grid">
+    <div class="explainer-col">
+      <h4>The math</h4>
+      <p>Cost per agent-hour decomposes into four terms. Uncached input tokens pay the full input rate. Cached input tokens pay the cache-read rate. Output tokens pay the output rate. The sandbox is a flat add.</p>
+
+<pre><code>cost_per_agent_hour =
+    input_tokens * (1 - C) * tier.in_rate
+  + input_tokens * C * tier.cache_read_rate
+  + output_tokens * tier.out_rate
+  + sandbox_rate</code></pre>
+
+<p>Work an example. One medium agent on Sonnet at C = 0.60. Medium is 400 calls/hr, 80k input/call, 4k output/call. So input_tokens = 400 * 80,000 = 32,000,000 per hour. Output_tokens = 400 * 4,000 = 1,600,000 per hour.</p>
+
+<p>Sonnet rates are $3 / $15 / $0.30 per million. Plug in:</p>
+
+<p>Uncached input: 32M * 0.40 * $3 / 1M = 12.8 * $3 = $38.40.<br>
+Cached input: 32M * 0.60 * $0.30 / 1M = 19.2 * $0.30 = $5.76.<br>
+Output: 1.6M * $15 / 1M = $24.00.<br>
+Sandbox: $0.10.</p>
+
+<p>Sum: 38.40 + 5.76 + 24.00 + 0.10 = <strong>$68.26 per agent-hour</strong>.</p>
+
+<p>Now drop the cache. Same agent at C = 0. Input collapses to one term: 32M * $3 / 1M = $96.00. Output and sandbox unchanged at $24.10. Total <strong>$120.10 per agent-hour</strong>. The 60% prefix cache saves $51.84 per agent-hour, about 43%.</p>
+
+<p>The widget scales linearly. A fleet of 100,000 such agents costs 100,000 * $68.26 = <strong>$6,826,000 per hour</strong>, which is what the top number reports.</p>
+    </div>
+    <div class="explainer-col">
+      <h4>Why the cache works</h4>
+      <p>Content-hash caches key on bytes. The LLM regenerates a file with a renamed local variable, the SHA shifts, Bazel recomputes the world. Nothing about the file's meaning changed; the hash sat too low in the stack to notice.</p>
+
+<p>Prompt-prefix caches key higher. The expensive object inside a transformer is the <code>KV cache</code>: the key and value tensors produced by attending over every token in the prompt. Recomputing that state on each call is most of what you pay for.</p>
+
+<p>Anthropic stores it. The key is the byte-identical prefix of your request, typically the <code>system prompt</code>, tool definitions, and the unchanged file contents you pass in. A second call with the same prefix reuses the tensors and skips the attention pass over those tokens. The skip is the discount.</p>
+
+<p>The 0.1x rate is a cost ratio, not a promotion. A cached read is RAM access with no matmul behind it. The 10 percent charge amortizes the write and the eviction bookkeeping. The read itself is close to free, and the price reflects that.</p>
+
+<p>Two constraints fall out of this for your harness. First, the prefix must stay byte-identical across calls: pin the <code>system prompt</code>, hash and freeze the tool schema, reuse file contents verbatim rather than asking the model to regenerate them. Second, calls must land inside the <code>TTL</code>: five minutes for the cheap write, one hour for the expensive one.</p>
+
+<p>Drift on either and the discount evaporates. The 43 percent on the widget above is engineering work, not a config flag.</p>
+    </div>
+  </div>
+</section>
+
+
 <section id="two-level-cache">
   <h2><span class="num">05</span> The two-level cache <a class="copy" href="#two-level-cache" aria-label="Link to this section">¶</a></h2>
 
