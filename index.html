@@ -588,7 +588,7 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 
   <p>The way we make software changed three times in a decade. We've only named two of them.</p>
 
-  <p>Software 1.0 was the code a human typed for a machine. Software 2.0 was the weights a dataset taught a machine to hold. Software 3.0 is the prompt — a program written in English that runs on a model that runs on a fleet. Karpathy gave us the first two names in 2017 and the third one in 2025, and the gap between those announcements is not an accident: 1.0 was a production shift, 2.0 was a learning shift, 3.0 is an infrastructure shift, and infrastructure shifts always lag the thing they carry.<sup class="fn"><a href="#fn1">1</a></sup></p>
+  <p>Software 1.0 was the code a human typed for a machine. Software 2.0 was the weights a dataset taught a machine to hold. Software 3.0 is the prompt — a program written in English that runs on a model that runs on a fleet. Karpathy named the first two in 2017 and the third in 2025. The eight-year gap is the tell. 1.0 reshaped how code got written. 2.0 reshaped how programs got learned. 3.0 reshapes where they run, and the wiring underneath always arrives after the workload that needs it.<sup class="fn"><a href="#fn1">1</a></sup></p>
 
   <p>The thing they carry has arrived. Coding agents that scored under 14% on SWE-bench Verified in early 2024 are clearing 95% by mid-2026.<sup class="fn"><a href="#fn2">2</a></sup> Inference cost at equivalent quality has fallen more than a thousand-fold in the same window.<sup class="fn"><a href="#fn3">3</a></sup> The two curves run in opposite directions at comparable speed, and where they cross is where the substrate sits.</p>
 
@@ -603,13 +603,13 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 
   <p>Three sentences carry the whole idea.</p>
 
-  <p><em>Your prompts are programs.</em> They have inputs and outputs, side effects, version drift, and a runtime cost per call. They are checked into repos, they go through code review, they get A/B tested in production. The fact that they look like English is a UX choice, not an ontological one.</p>
+  <p><em>Your prompts are programs.</em> They have inputs and outputs, side effects, version drift, and a runtime cost per call. They are checked into repos, they go through code review, they get A/B tested in production. The English surface is a UX choice. Underneath, the semantics are still program semantics, and the runtime treats them that way.</p>
 
-  <p><em>The LLM is a computer.</em> Not a model, not an API — a computer in Karpathy's sense, with an instruction stream (the prompt), a memory hierarchy (context, KV cache, retrieval), and a clock that ticks in tokens.<sup class="fn"><a href="#fn4">4</a></sup> Every architectural property of the old computer needs a new answer on this one: scheduling, caching, isolation, billing, even what it means for a program to terminate.</p>
+  <p><em>The LLM is a computer.</em> Karpathy's sense of the word: an instruction stream (the prompt), a memory hierarchy (context, KV cache, retrieval), and a clock that ticks in tokens.<sup class="fn"><a href="#fn4">4</a></sup> Every architectural property of the old computer needs a new answer on this one: scheduling, caching, isolation, billing, even what it means for a program to terminate.</p>
 
   <p><em>The autonomy slider exists.</em> The same model can be a tab-complete, a copilot, a background agent, or a fleet. The slider is continuous, the cost curve is not, and the substrate has to absorb the discontinuity. A keystroke is cents; an agent-hour is dollars; a thousand parallel agents is the bill.</p>
 
-  <p>Vendors will tell you "Software 3.0" is whatever they ship, the way "AI" used to mean a spam filter. The honest test is shorter. If the artifact you wrote was a prompt, and the artifact that ran was a model, and the artifact that landed was code or a ticket or a refund, you are in 3.0.</p>
+  <p>Vendors will tell you "Software 3.0" is whatever they ship, the way "AI" used to mean a spam filter. A working test: did you author a prompt, did a model execute it, did the output land as code or a ticket or a refund? Three yeses and you're in 3.0.</p>
 
   <p>This sits on top of a training curve that has run about five times per year since 2020 and is on track to cross 10²⁷ FLOPs by 2027.<sup class="fn"><a href="#fn5">5</a></sup> Four orders of magnitude in six years on the training side. A thousand-fold drop on the inference side. The substrate is the place those two curves land.</p>
 
@@ -674,7 +674,7 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
     <figcaption><strong>Training compute, 5× a year.</strong> The math behind frontier models keeps multiplying — a million-fold jump from GPT-2 in 2019 to today, with no plateau in sight (Epoch AI<sup class="fn"><a href="#fn5">5</a></sup>).</figcaption>
   </figure>
 
-  <p>None of the three sentences is about the model. All three land on the infrastructure.</p>
+  <p>Read the three sentences again. Each one names the model and then spends the rest of its breath on the plumbing that carries it.</p>
 </section>
 
 <!-- §02b stochastic-cpu -->
@@ -697,7 +697,7 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 
   <h3>What breaks downstream</h3>
 
-  <div class="callout">The CPU was deterministic for sixty years. The new one isn't.</div>
+  <div class="callout">For sixty years, <code>f(x) = y, always</code>. The new CPU answers the same question twice and returns two answers.</div>
 
   <p>Every assumption built on determinism now needs a replacement, and each replacement is a line item on the new substrate.</p>
 
@@ -709,13 +709,13 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 
   <p><em>Idempotency.</em> A retried HTTP call used to be free if the server was well-behaved. A retried agent call writes a different PR, opens a different ticket, sends a different email. Every action needs an idempotency key the agent itself does not generate.</p>
 
-  <p><em>Cost.</em> You pay for the same work, plural, until it lands. An agent loop that needs three samples to converge is three times the bill, and frontier inference is already running into the tens of millions of tokens per second per cluster. Eval is not a quality tool; it's the line item that decides whether the loop terminates before the invoice does.</p>
+  <p><em>Cost.</em> You pay for the same work, plural, until it lands. An agent loop that needs three samples to converge is three times the bill, and frontier inference is already running into the tens of millions of tokens per second per cluster. Eval is the line item that decides whether the loop terminates before the invoice does. Quality falls out as a side effect of that budget.</p>
 
   <p><em>Provenance.</em> A commit used to carry one signature. It now carries three: the human who asked, the agent that wrote, and the platform snapshot that generated. Audit, compliance, and IP all have to learn to read a triple.</p>
 
   <h3>The punch</h3>
 
-  <p>The substrate is not being rebuilt because LLMs got smarter. Smarter would fit on the old substrate; smarter is just a faster CPU. The substrate is being rebuilt because LLMs are <em>stochastic</em>, and the cloud — every layer of it, from the cache to the bill — was designed around a property the new workload does not have.</p>
+  <p>A faster CPU would fit on the old substrate. A <em>stochastic</em> CPU does not, because the cloud (every layer of it, from the cache to the bill) was designed around determinism, and the new workload does not provide it.</p>
 
   <p>This is the most important architectural shift since the move from single machine to distributed compute, and it is happening underneath teams that still think they are shipping software.</p>
 </section>
@@ -724,11 +724,11 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 <section id="the-break">
   <h2><span class="num">03</span> What broke <a class="copy" href="#the-break" aria-label="Link to this section">¶</a></h2>
 
-  <div class="callout">Containers were built for humans. Agents broke them in eighteen months.</div>
+  <div class="callout">Containers assume a request that returns. Agents run a loop that doesn't.</div>
 
   <p>A container is a frozen filesystem with a process boundary. It was designed for a workload that boots, serves requests, scales out, and dies — a server, kind of like a long-lived organism. Agents are the opposite shape. They wake up, think for ninety seconds, write a file, sleep, wake up again at a different hour with a different prompt and a different model. The container abstraction fights every one of those properties.</p>
 
-  <p><em>Cold start.</em> A Python image pulls in seconds; a CUDA-enabled image with a 70B model loaded pulls in minutes. Cold start used to be a tail-latency problem. With agents it's the median.</p>
+  <p><em>Cold start.</em> A Python image pulls in seconds; a CUDA-enabled image with a 70B model loaded pulls in minutes. On a web server, cold start is the p99. On an agent fleet, every wake-up is a cold start, so the p99 becomes the p50.</p>
 
   <figure class="svg-fig" data-anim="fade-up">
     <svg viewBox="0 0 720 200" width="100%" role="img"
@@ -784,11 +784,11 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 
   <p><em>State.</em> A container is stateless by convention. An agent has a scratchpad, a working tree, a tool history, and a context window worth keeping. Snapshotting that across a fleet of ephemeral runners is a new primitive — one that Modal, E2B, and a half-dozen startups are now charging for, at a documented 3× premium over their own serverless tier.<sup class="fn"><a href="#fn6">6</a></sup></p>
 
-  <p><em>Pricing.</em> A container bills CPU-seconds. An agent bills tokens, and the tokens are 95% of the line. A 2 vCPU sandbox costs about ten cents an hour on Modal or E2B. The same hour of Sonnet-tier inference, in a heavy loop, runs $6 to $8.50.<sup class="fn"><a href="#fn7">7</a></sup> The bill is the model, not the box.</p>
+  <p><em>Pricing.</em> A container bills CPU-seconds. An agent bills tokens, and the tokens are 95% of the line. A 2 vCPU sandbox costs about ten cents an hour on Modal or E2B. The same hour of Sonnet-tier inference, in a heavy loop, runs $6 to $8.50.<sup class="fn"><a href="#fn7">7</a></sup> Sixty to eighty-five times the box, on the same invoice.</p>
 
   <p><em>CI.</em> Tests are deterministic; agents are not. You can't gate a merge on a boolean over a stochastic function, so the gate becomes an eval — a statistical regression with a budget and a confidence interval, run on its own pool of compute. CI used to be 5% of the cloud bill. By 2030 the eval pool is its own line item.</p>
 
-  <p><em>Cache.</em> Content-hash caches assume same input means same output bytes. Agents regenerate semantically-equivalent files with different bytes constantly, so Bazel, Buck, and Nix all miss when they shouldn't. The fix isn't a smarter hash; it's a second cache layer that keys on prompt prefix. §5.</p>
+  <p><em>Cache.</em> Content-hash caches assume same input means same output bytes. Agents regenerate semantically-equivalent files with different bytes constantly, so Bazel, Buck, and Nix all miss when they shouldn't. A smarter hash doesn't help; the bytes really are different. The fix is a second cache layer that keys on the prompt prefix above the byte layer. §5.</p>
 
   <p>None of this is hypothetical. Shopify reports that one in eight merged PRs across the company is coauthored by its agent, River — 3,536 merged in a 30-day window.<sup class="fn"><a href="#fn8">8</a></sup> Sundar Pichai said on the Q3 2024 earnings call that over a quarter of new code at Google was AI-generated; he raised the number to over 30% on the Q1 2025 call.<sup class="fn"><a href="#fn9">9</a></sup> The Shopify number is the more honest one because it counts what got <em>merged</em>, not what got typed.</p>
 
@@ -856,13 +856,13 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 
   <div class="callout">The agent-hour is the new CPU-hour.</div>
 
-  <p>Watch the billing pages, not the keynotes. The keynotes will sell you the model; the billing pages tell you which abstraction the providers actually believe in.</p>
+  <p>Read the billing pages. Keynotes sell models; SKUs reveal which abstractions a provider has committed compute, finance, and on-call to.</p>
 
   <p>Anthropic's June 2026 billing split broke out agent calls as a separate SKU from raw inference for the first time. Modal added a sandbox tier at $0.1419 per physical core-hour, roughly 3× its standard serverless rate, and called it the sandbox tax in the docs.<sup class="fn"><a href="#fn6">6</a></sup> Replit Agent ships Core at $20/mo with $25 of credits and meters Agent runtime against the pool. Cursor's background agent has its own SKU. The pattern is the same in every case: a unit of billing that did not exist in 2023 now has a price.</p>
 
-  <p>The unit is the agent-hour. It is to the cloud what the CPU-hour was to EC2. It is the thing that gets reserved, the thing that gets autoscaled, the thing that ends up on the invoice. By 2027 all three hyperscalers will have an agent-hour SKU, and the one that doesn't will be the one re-selling someone else's.</p>
+  <p>The unit is the agent-hour. It gets reserved, it gets autoscaled, it ends up on the invoice with its own line. By 2027 all three hyperscalers will have an agent-hour SKU, and the one that doesn't will be the one re-selling someone else's.</p>
 
-  <p>The reason it works as a unit is that the substrate underneath it is finally cheap enough. The economics of a coding agent that issues hundreds of LLM round-trips per task only close because the inference curve has fallen by more than three orders of magnitude at equivalent quality. Frontier price per million output tokens has roughly halved in three years; equivalent quality has fallen more than a thousand-fold over the same window.<sup class="fn"><a href="#fn3">3</a></sup> The first curve is what the press release covers. The second one is what makes the agent-hour solvent.</p>
+  <p>The reason it works as a unit is that the substrate underneath it is finally cheap enough. The economics of a coding agent that issues hundreds of LLM round-trips per task only close because the inference curve has fallen by more than three orders of magnitude at equivalent quality. Frontier price per million output tokens has roughly halved in three years; equivalent quality has fallen more than a thousand-fold over the same window.<sup class="fn"><a href="#fn3">3</a></sup> Press releases quote the first number. The agent-hour is solvent because of the second.</p>
 
   <figure class="chart" id="chart-inference-cost" data-anim="chart-B">
     <svg viewBox="0 0 640 260" width="100%" role="img" aria-label="Inference cost per million output tokens fell from $60 for GPT-4 in 2023 to under $1 for equivalent quality by 2026, more than a 1000× decline on a log scale" class="sw3-chart sw3-chart-b" data-anim="chart-B" xmlns="http://www.w3.org/2000/svg">
@@ -991,7 +991,7 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 
   <p>Walk the math for a single agent-hour at mid-2026 prices. A Sonnet-tier background loop issuing 200–600 round-trips, with 30K–150K-token contexts (80–95% cached) and 2K–8K output per call, lands between $1.20 and $8.50 per hour all-in. Sandbox compute is a rounding error on top.<sup class="fn"><a href="#fn7">7</a></sup> A fully-loaded software engineer is $80–$150 an hour. The ratio is 10× to 100× before you count parallelism.</p>
 
-  <p>The substrate's job is no longer to make the agent cheap. The substrate's job is to make the agent's <em>coordination</em> cheap. The bottleneck has moved up the stack, which is where every interesting infrastructure problem now lives (!).</p>
+  <p>The agent itself is cheap now. The expensive part is making a hundred of them agree on a working tree, a test suite, and a deploy without stepping on each other. The bottleneck moved up the stack, which is where every interesting infrastructure problem now lives (!).</p>
 </section>
 
 <!-- §05 two-level-cache -->
@@ -1068,7 +1068,7 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 
   <p>That discipline propagates down the build system. Prompts get versioned. System prompts get pinned. Tool schemas get hashed. The "what does this build depend on" question grows a new column: not just the source files and compiler version, but the model snapshot, the prompt prefix, and the seed if you bothered to set one.</p>
 
-  <p>The shape of the cache is the shape of the workload. The workload changed. The cache has to.</p>
+  <p>Caches mirror the workload they serve. When the workload's notion of equivalence moves from bytes to meaning, the cache key has to move with it, or it stops being a cache.</p>
 </section>
 
 <!-- §06 tokio -->
@@ -1114,13 +1114,13 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
     <figcaption><strong>Warm starts are fifteen times faster.</strong> Time for an agent's edit-test loop: cold boot 46 seconds, cached image 12 seconds, hot snapshot 3 seconds (Incredibuild benchmark<sup class="fn"><a href="#fn13">13</a></sup>).</figcaption>
   </figure>
 
-  <p>The interesting number is not 46. Anyone who has run a Rust test suite knows 46. The interesting number is 3, because 3 is the latency an agent sees when it edits one crate out of fifty and re-runs the workspace. The agent does that constantly — that's how agents work — and a 3-second loop is a usable interactive substrate, while a 46-second loop is a coffee break.</p>
+  <p>The interesting number is not 46. Anyone who has run a Rust test suite knows 46. The interesting number is 3, because 3 is the latency an agent sees when it edits one crate out of fifty and re-runs the workspace. The agent does that constantly — that's how agents work — a 3-second loop keeps the agent in the same call frame; 46 seconds is long enough that the agent's harness, the human watching it, and the CI runner all context-switch.</p>
 
   <p>What the two-level cache does on Tokio is collapse the dominant case. Forty-seven of fifty crates are unchanged. The bottom cache catches those. The top cache catches the agent's regenerated file as semantically equivalent to last call. The remaining work is the small set of crates that actually moved.</p>
 
   <p>This is one repo. The same shape recurs on any monorepo where an agent is the dominant editor. The break-even point — where the prompt-prefix cache starts paying back the cost of running it — comes early, around the third or fourth iteration of the agent on the same codebase.</p>
 
-  <p>3 seconds is not a benchmark result. It's a loop latency that lets the agent stay in the call frame instead of falling out of it.</p>
+  <p>3 seconds is the loop latency at which the agent stays in the call frame instead of falling out of it. The benchmark number is a side effect of that property.</p>
 </section>
 
 <!-- §07 provenance -->
@@ -1133,7 +1133,7 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 
   <p>The reason this becomes mandatory is not regulatory. It's IP. When 30%+ of Google's new code is AI-coauthored and Shopify is merging 3,500+ agent PRs a month, the question "who wrote this" stops being a credit-line question and starts being an indemnity question.<sup class="fn"><a href="#fn8">8</a></sup><sup class="fn"><a href="#fn9">9</a></sup> A signature you can't trace is a liability you can't bound. The triple signature is what makes the merge reviewable, the audit defensible, and the IP transferable.</p>
 
-  <p>This is also what closes the loop on the stochastic CPU. The output is non-deterministic; the invocation is not. You can't pin <code>f(x) = y</code> any more, but you can pin <code>(human, agent, platform, prompt, snapshot) → artifact</code>, and that tuple is what the next decade's compliance regime will be written against.</p>
+  <p>This is also what closes the loop on the stochastic CPU. The output drifts every run. The invocation that produced it is still a fixed tuple of inputs you can write down on one line. <code>f(x) = y</code> is gone. The pinning moves up one level, to <code>(human, agent, platform, prompt, snapshot) → artifact</code>, and that tuple is what the next decade's compliance regime will be written against.</p>
 
   <p>Reproducibility moved up one level of abstraction. Provenance moved with it.</p>
 </section>
@@ -1227,7 +1227,7 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
     <figcaption><strong>Where the 2030 cloud bill goes.</strong> Inference and agent runtime together swallow nearly two-thirds of spend; traditional servers shrink to a rounding error.</figcaption>
   </figure>
 
-  <p>Compare that to 2023, where roughly 70% of a comparable bill was the legacy shape and inference barely cleared single digits. The reallocation is not gradual. It is the kind of shift that happens once a workload crosses a threshold, and the agent workload has crossed it.</p>
+  <p>Compare that to 2023, where roughly 70% of a comparable bill was the legacy shape and inference barely cleared single digits. Reallocations of this size happen once a workload crosses a threshold. The agent workload crossed in 2026 and the bill is following on a two-year lag.</p>
 
   <p>Kubernetes survives. It just gets demoted. The control plane that schedules pods becomes the control plane that schedules agent runtimes — and the things it schedules are not stateless. They have warm KV caches, prompt-prefix locality, model affinity to specific GPU pools. The scheduler that wins this round will look more like a database query planner than the round-robin we have today.</p>
 
@@ -1242,9 +1242,9 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 
   <p>Software 1.0 was humans writing for machines. Software 2.0 was data writing weights. Software 3.0 is humans writing for a model that writes for the machine, and the model in the middle is a stochastic CPU.</p>
 
-  <p>Every layer above that CPU was built on a guarantee the new CPU does not provide. The cache misses. The test flakes. The build is no longer reproducible by the binary; it's reproducible by the invocation. The commit needs three signatures, not one. The invoice grows a line item with a unit nobody priced in 2023. None of this is because the model got smarter. All of it is because the model is stochastic, and the substrate underneath it was not.</p>
+  <p>Every layer above that CPU was built on a guarantee the new CPU does not provide. The cache misses. The test flakes. The build's reproducibility moves from the binary up to the invocation. The commit grows from one signature to three. The invoice grows a line item with a unit nobody priced in 2023. A smarter model would have left the substrate alone. A stochastic one rewrites it.</p>
 
-  <p>What you are watching is not a tooling refresh. It is the rewriting of a sixty-year stack against a property change in its lowest layer. The container, the cache, the test runner, the build system, the scheduler, the bill — each one is being reformed around the same observation, and most teams are still writing CI files as if the answer were a boolean.</p>
+  <p>What you are watching is the rewriting of a sixty-year stack against a property change in its lowest layer. The container, the cache, the test runner, the build system, the scheduler, the bill: each one is being reformed around the same observation, and most teams are still writing CI files as if the answer were a boolean.</p>
 
   <p>The substrate is shifting. It's already shifted. You're standing on it.</p>
 </section>
