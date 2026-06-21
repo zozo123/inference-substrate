@@ -1828,6 +1828,126 @@ Sandbox: $0.10.</p>
   <p>Three seconds is what makes the agent loop a loop. Forty six seconds is what makes it a coffee break.</p>
 </section>
 
+<!-- §06b dev, test, eval, prod -->
+<section id="neo-sdlc">
+  <h2><span class="num">06b</span> Dev, test, eval, prod.</h2>
+
+  <p>Three seconds at the build layer is the floor. Above the build, the rest of the SDLC has to change too. If the inner loop is a stochastic CPU answering in seconds, the four boxes around it (dev, test, eval, prod) stop looking like the four boxes a 2018 platform team would have drawn. The shapes change. The unit of work changes. The line items on the invoice change.</p>
+
+  <div class="callout">Dev is a sandbox. Test is a sample. Eval is the budget. Prod is a fleet.</div>
+
+  <h3>Dev.</h3>
+  <p>A developer no longer spins up a laptop and a docker compose file. They request a sandbox. E2B boots a Firecracker microVM in approximately 80ms same region and resumes a paused one in 5 to 30ms (per E2B docs, 2026). Daytona advertises sub 90ms code to execution, as low as 27ms from a pre warmed pool (per Daytona docs, 2026). Modal restores a memory snapshot in about 1.05s for a PyTorch process and 3.5s for Stable Diffusion, roughly 2.5x faster than a cold container (per Modal blog, 2026). The legacy primitive was a long lived workstation. The neo primitive is a snapshot that gets paged in.</p>
+
+  <p>State lives in two places: the filesystem snapshot that captures the OS, deps, and configured base, and the memory snapshot that captures the running process. E2B paused sandboxes persist for up to 30 days. Daytona auto stops at 15 minutes idle and auto archives at 7 days. Billing is per second, not per box. Modal sandbox CPU runs at about $0.142 per physical core hour and RAM at $0.024 per GiB hour (per Modal pricing, 2026). E2B sits in roughly the same band. A dev environment that costs cents per hour while running and zero while paused is a different economic object than a laptop, and the agent loop from section 06 is the thing that actually exercises it.<sup class="fn"><a href="#fn6">6</a></sup></p>
+
+  <h3>Test.</h3>
+  <p>A unit test over a deterministic function is an assertion. A unit test over a stochastic function is a coin flip. The fix is not to retry until green. The fix is to stop pretending the output is a scalar and start treating it as a distribution.</p>
+
+  <p>Practice has converged. Five to ten samples per case is standard. Eight is the de facto reliability multiplier in academic benchmarks. SWE bench Verified runs 500 human validated Python issues as the reference grid (per SWE bench, 2026). Golden sets in production tend to land at 200 to 500 curated examples per route, mined from real failures (per industry write ups, March 2026). The gate is no longer zero failures. The gate is mean above threshold T with a confidence interval narrower than W, where T is route specific. A faithfulness score of 0.82 passes for casual chat and fails for regulated insurance advice. Same score, different box.</p>
+
+  <h3>Eval.</h3>
+  <p>Eval is the unit of work in the neo SDLC, and it is the line item that decides whether the loop terminates before the invoice does. Two modes run in parallel. Offline eval runs against curated reference sets on every commit, gated in CI. Online eval samples production traffic, typically 1 to 10 percent of matching traces for high volume apps and up to 100 percent for critical workflows (per Braintrust, 2026), scores them async with a cheap classifier or an LLM judge, and writes the score back onto the trace.</p>
+
+  <p>Cost asymmetry is the design pressure. A unit test costs roughly zero. A classifier eval costs about a tenth of a cent per call. An LLM judge costs $0.05 to $0.50 per call. At frontier scale the Holistic Agent Leaderboard ran 21,730 rollouts across 9 models for approximately $40k, and k equals 8 reliability runs scale that to roughly $320k (per Hugging Face evaleval, 2026). Drift detection rides on top: a sustained 2 to 5 percent drop in per rubric score over 24 to 48 hours opens an investigation, 5 percent or more pages on call, and PSI on the input distribution above 0.2 forces action. The cascade pattern (deterministic scanner first, cheap classifier next, LLM judge only on residual uncertainty) is how teams claw back about an order of magnitude without losing precision.</p>
+
+  <h3>Prod.</h3>
+  <p>Prod is a fleet of long lived sandboxes, not a deployment target. Shopify's River runs approximately 60,000 sessions across roughly 7,000 employees in 30 days and co authors one in eight merged PRs at Shopify.<sup class="fn"><a href="#fn8">8</a></sup> Anthropic's dynamic workflows cap at 16 concurrent agents per run and 1,000 subagents total (per Anthropic, 2026). Cognition runs Devin sessions as separate VMs, infinitely parallelizable, billed per ACU only while the VM is actively working.</p>
+
+  <p>Scheduling is per task, never per repo or per PR. The fleet pattern is three layers: a durable event log (Postgres for River), a disposable harness process, a disposable execution sandbox. Inference routes by prefix cache affinity, not round robin.<sup class="fn"><a href="#fn7">7</a></sup> The llm-d reference stack on 8 vLLM pods over 16 H100s drives P90 TTFT from 31s plus down to 0.542s, and Ranvier's benchmark on 8 A100s lifts cache hit rate from 12.5 percent to 97.5 percent and cuts P99 latency from 6,800ms to 1,000ms (per llm-d and Ranvier, 2026). Kubernetes is still there. It has been demoted to fleet scheduler underneath the inference aware layer, the role it should have had all along.<sup class="fn"><a href="#fn13">13</a></sup></p>
+
+  <figure class="chart">
+    <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="neoSdlcTitle">
+      <title id="neoSdlcTitle">Legacy SDLC versus neo SDLC across dev, test, eval, prod.</title>
+      <style>
+        .bg { fill: #FAF7F2; }
+        .col-label { font: 600 12px ui-sans-serif, system-ui, sans-serif; fill: #1A1A1A; letter-spacing: 0.04em; text-transform: uppercase; }
+        .row-label { font: 500 11px ui-sans-serif, system-ui, sans-serif; fill: #6B6259; letter-spacing: 0.08em; text-transform: uppercase; }
+        .legacy-cell { fill: #FAF7F2; stroke: #D9D2C7; stroke-width: 1; }
+        .legacy-title { font: 600 12px ui-sans-serif, system-ui, sans-serif; fill: #6B6259; }
+        .legacy-text { font: 400 10.5px ui-sans-serif, system-ui, sans-serif; fill: #6B6259; }
+        .neo-cell { fill: #FAF7F2; stroke: #B8430F; stroke-width: 1.4; }
+        .neo-cell-accent { fill: #FAF7F2; stroke: #B8430F; stroke-width: 2; }
+        .neo-title { font: 600 12.5px ui-sans-serif, system-ui, sans-serif; fill: #1A1A1A; }
+        .neo-text { font: 400 11px ui-sans-serif, system-ui, sans-serif; fill: #1A1A1A; }
+        .rust-text { fill: #B8430F; }
+        .rule { stroke: #D9D2C7; stroke-width: 1; }
+        .now { font: 600 10px ui-sans-serif, system-ui, sans-serif; fill: #B8430F; letter-spacing: 0.12em; text-transform: uppercase; }
+      </style>
+      <rect class="bg" x="0" y="0" width="760" height="320"/>
+
+      <text class="col-label" x="160" y="28" text-anchor="middle">Dev</text>
+      <text class="col-label" x="320" y="28" text-anchor="middle">Test</text>
+      <text class="col-label" x="460" y="28" text-anchor="middle">Eval</text>
+      <text class="col-label" x="620" y="28" text-anchor="middle">Prod</text>
+
+      <text class="row-label" x="60" y="100" text-anchor="middle">Legacy</text>
+      <text class="row-label" x="60" y="232" text-anchor="middle">Neo</text>
+
+      <line class="rule" x1="100" y1="40" x2="740" y2="40"/>
+
+      <rect class="legacy-cell" x="100" y="56" width="120" height="86" rx="2"/>
+      <text class="legacy-title" x="112" y="76">Laptop</text>
+      <text class="legacy-text" x="112" y="94">docker compose</text>
+      <text class="legacy-text" x="112" y="110">long lived workstation</text>
+      <text class="legacy-text" x="112" y="126">flat license</text>
+
+      <rect class="legacy-cell" x="240" y="56" width="120" height="86" rx="2"/>
+      <text class="legacy-title" x="252" y="76">Unit tests</text>
+      <text class="legacy-text" x="252" y="94">boolean assertions</text>
+      <text class="legacy-text" x="252" y="110">green or red</text>
+      <text class="legacy-text" x="252" y="126">CI on every push</text>
+
+      <rect class="legacy-cell" x="400" y="76" width="92" height="50" rx="2"/>
+      <text class="legacy-title" x="408" y="96" style="font-size:11px">Eval</text>
+      <text class="legacy-text" x="408" y="112">afterthought</text>
+
+      <rect class="legacy-cell" x="540" y="56" width="160" height="86" rx="2"/>
+      <text class="legacy-title" x="552" y="76">Deployment</text>
+      <text class="legacy-text" x="552" y="94">long lived pods</text>
+      <text class="legacy-text" x="552" y="110">k8s schedules everything</text>
+      <text class="legacy-text" x="552" y="126">round robin routing</text>
+
+      <line class="rule" x1="100" y1="172" x2="740" y2="172"/>
+
+      <rect class="neo-cell" x="100" y="188" width="120" height="100" rx="2"/>
+      <text class="neo-title" x="112" y="208">Sandbox</text>
+      <text class="neo-text" x="112" y="226">Firecracker, 5 to 30ms</text>
+      <text class="neo-text" x="112" y="242">snapshot resume</text>
+      <text class="neo-text rust-text" x="112" y="262">per second billing</text>
+
+      <rect class="neo-cell" x="240" y="188" width="120" height="100" rx="2"/>
+      <text class="neo-title" x="252" y="208">Sample</text>
+      <text class="neo-text" x="252" y="226">k equals 8 rollouts</text>
+      <text class="neo-text" x="252" y="242">mean above T</text>
+      <text class="neo-text rust-text" x="252" y="262">distribution, not bool</text>
+
+      <rect class="neo-cell-accent" x="380" y="178" width="160" height="120" rx="2"/>
+      <text class="neo-title" x="392" y="200" style="font-size:13.5px">Eval</text>
+      <text class="neo-text" x="392" y="220">online plus offline</text>
+      <text class="neo-text" x="392" y="238">1 to 10% shadow</text>
+      <text class="neo-text" x="392" y="256">drift gates, PSI 0.2</text>
+      <text class="neo-text rust-text" x="392" y="276">first class line item</text>
+
+      <rect class="neo-cell" x="560" y="188" width="160" height="100" rx="2"/>
+      <text class="neo-title" x="572" y="208">Fleet</text>
+      <text class="neo-text" x="572" y="226">60k sessions / 30d</text>
+      <text class="neo-text" x="572" y="242">KV cache affinity</text>
+      <text class="neo-text rust-text" x="572" y="262">k8s as substrate</text>
+
+      <g>
+        <text class="now" x="460" y="170" text-anchor="middle">now</text>
+        <path d="M 460 172 L 460 178" stroke="#B8430F" stroke-width="1.4" fill="none"/>
+        <polygon points="460,180 456,174 464,174" fill="#B8430F"/>
+      </g>
+    </svg>
+    <figcaption>Same SDLC, four boxes, two shapes.</figcaption>
+  </figure>
+
+  <p>Once the four boxes look like this, the question that closes the loop is who signed which output.</p>
+</section>
+
+
 <!-- §07 provenance -->
 <section id="provenance">
   <h2><span class="num">07</span> Provenance <a class="copy" href="#provenance" aria-label="Link to this section">¶</a></h2>
@@ -2090,6 +2210,7 @@ Sandbox: $0.10.</p>
     <li><a href="#sandbox-fleet">Sandbox fleet · live</a></li>
     <li><a href="#two-level-cache">Two level cache</a></li>
     <li><a href="#tokio">Tokio benchmark</a></li>
+    <li><a href="#neo-sdlc">Dev, test, eval, prod</a></li>
     <li><a href="#provenance">Provenance</a></li>
     <li><a href="#timeline">Timeline</a></li>
     <li><a href="#bill-2030">2030 bill</a></li>
