@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Stochastic CPU — A field report on the cloud underneath Software 3.0</title>
 <meta name="description" content="How the cloud is being rebuilt for agents: the agent-hour, the two-level cache, snapshot provenance, and a 2030 cloud bill. A field report by Yossi Eliaz.">
-<meta name="author" content="Yossi Eliaz · Incredibuild · Founder, islo.dev">
+<meta name="author" content="Yossi Eliaz · at incredibuild and islo.dev">
 <meta name="theme-color" content="#FAF7F2">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1">
@@ -65,7 +65,7 @@
     "affiliation": [
       {
         "@type": "Organization",
-        "name": "Incredibuild"
+        "name": "incredibuild"
       },
       {
         "@type": "Organization",
@@ -543,7 +543,7 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 <div class="hero">
   <h1>The Stochastic CPU.</h1>
   <p class="sub">A field report on the cloud that's being built underneath Software 3.0. From the agent-hour to the prompt-keyed cache to the three signatures on every 2030 merge.</p>
-  <p class="byline">By <a href="https://www.linkedin.com/in/yossi-eliaz/">Yossi Eliaz</a> · Incredibuild · Founder, <a href="https://islo.dev">islo.dev</a> · Tel Aviv · 2026</p>
+  <p class="byline">By <a href="https://www.linkedin.com/in/yossi-eliaz/">Yossi Eliaz</a> · at incredibuild and <a href="https://islo.dev">islo.dev</a> · Tel Aviv · 2026</p>
   <p class="hero-meta" id="reading-meta"></p>
 </div>
 
@@ -1132,6 +1132,30 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
             </div>
           </fieldset>
         </div>
+
+        <div class="sfs__row sfs__row--toggles">
+          <fieldset class="sfs__seg">
+            <legend class="sfs__legendtxt">Sandbox</legend>
+            <div class="sfs__segwrap" role="radiogroup" aria-label="Sandbox tier">
+              <input type="radio" name="sfs-sb" id="sfs-sb-prem" value="premium" />
+              <label for="sfs-sb-prem">Premium</label>
+              <input type="radio" name="sfs-sb" id="sfs-sb-std" value="standard" checked />
+              <label for="sfs-sb-std">Standard</label>
+              <input type="radio" name="sfs-sb" id="sfs-sb-spot" value="spot" />
+              <label for="sfs-sb-spot">Spot</label>
+            </div>
+          </fieldset>
+
+          <fieldset class="sfs__seg">
+            <legend class="sfs__legendtxt">Batch API</legend>
+            <div class="sfs__segwrap" role="radiogroup" aria-label="Batch API discount">
+              <input type="radio" name="sfs-batch" id="sfs-batch-off" value="off" checked />
+              <label for="sfs-batch-off">Online</label>
+              <input type="radio" name="sfs-batch" id="sfs-batch-on" value="on" />
+              <label for="sfs-batch-on">Batch -50%</label>
+            </div>
+          </fieldset>
+        </div>
       </div>
     </div>
 
@@ -1196,6 +1220,8 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
     heavy:  {calls_per_hour:600, in_per_call:120000, out_per_call:6000, loadFactor:1.6}
   };
   var SANDBOX_PER_HR = 0.10;
+  var SANDBOX_RATES = { premium: 0.14, standard: 0.10, spot: 0.02 };
+  var BATCH_MULT = { off: 1.0, on: 0.5 };
   var ENG_PER_HR = 100.00;
   var HOURS_PER_MONTH = 730;
 
@@ -1209,7 +1235,10 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
     {k:"Opus input", v:"$5.00 / Mtok", n:"Anthropic public pricing, Claude Opus 4.x, mid-2026."},
     {k:"Opus output", v:"$25.00 / Mtok", n:"Anthropic public pricing, Claude Opus 4.x, mid-2026."},
     {k:"Opus cache-read", v:"$0.50 / Mtok", n:"Anthropic prompt caching: 90% discount vs input price."},
-    {k:"Sandbox / agent-hr", v:"$0.10/hr", n:"Midpoint of Modal ($0.1419/physical-core-hr) and E2B (~$0.05/vCPU-hr) assuming 2 vCPU per agent."},
+    {k:"Sandbox · Premium", v:"$0.14/hr", n:"Modal physical-core-hr (~$0.1419), on-demand."},
+    {k:"Sandbox · Standard", v:"$0.10/hr", n:"Midpoint of Modal and E2B for a 2 vCPU agent."},
+    {k:"Sandbox · Spot", v:"$0.02/hr", n:"Preemptible / spot tier on bare-metal or community cloud."},
+    {k:"Batch API discount", v:"-50%", n:"Anthropic Batch API processes async within 24h at half the input + output rate. Cache rates still apply."},
     {k:"Engineer baseline", v:"$100/hr", n:"Fully-loaded cost: salary + benefits + overhead. Comparison anchor only."},
     {k:"Hours per month", v:"730", n:"Cloud-billing convention: 365.25 days / 12 * 24 hours."},
     {k:"Light workload", v:"200 calls/hr, 40k in / 2k out", n:"User assumption: lightly-utilized coding agent."},
@@ -1217,20 +1246,23 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
     {k:"Heavy workload", v:"600 calls/hr, 120k in / 6k out", n:"User assumption: saturated coding agent with large context."}
   ];
 
-  function computeAgent(C, T, W){
+  function computeAgent(C, T, W, S, B){
     var p = PRICING[T], w = WORKLOAD[W];
+    var sandbox = SANDBOX_RATES[S || "standard"];
+    var bMult = BATCH_MULT[B || "off"];
     var inputTph = w.calls_per_hour * w.in_per_call;
     var outputTph = w.calls_per_hour * w.out_per_call;
     var cachedTph = inputTph * C;
     var freshTph = inputTph * (1 - C);
-    var inputCost = (freshTph/1e6)*p.input + (cachedTph/1e6)*p.cache_read;
-    var outputCost = (outputTph/1e6)*p.output;
+    var inputCost = ((freshTph/1e6)*p.input + (cachedTph/1e6)*p.cache_read) * bMult;
+    var outputCost = (outputTph/1e6) * p.output * bMult;
     var modelCost = inputCost + outputCost;
-    var perAgent = modelCost + SANDBOX_PER_HR;
-    var noCache = (inputTph/1e6)*p.input + (outputTph/1e6)*p.output + SANDBOX_PER_HR;
+    var perAgent = modelCost + sandbox;
+    var noCache = ((inputTph/1e6)*p.input + (outputTph/1e6)*p.output) * bMult + sandbox;
     var savings = noCache > 0 ? (1 - perAgent/noCache) * 100 : 0;
     return {inputTph:inputTph, outputTph:outputTph, cachedTph:cachedTph, freshTph:freshTph,
       inputCost:inputCost, outputCost:outputCost, modelCost:modelCost,
+      sandbox:sandbox, batch:bMult,
       perAgent:perAgent, noCache:noCache, savings:savings, p:p, w:w};
   }
 
@@ -1281,6 +1313,8 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 
   function tierVal(){ var t = root.querySelector('input[name="sfs-tier"]:checked'); return t ? t.value : "sonnet"; }
   function loadVal(){ var w = root.querySelector('input[name="sfs-load"]:checked'); return w ? w.value : "medium"; }
+  function sbVal(){ var s = root.querySelector('input[name="sfs-sb"]:checked'); return s ? s.value : "standard"; }
+  function batchVal(){ var b = root.querySelector('input[name="sfs-batch"]:checked'); return b ? b.value : "off"; }
 
   (function renderRail(){
     var ul = binds.rail; if(!ul) return;
@@ -1449,7 +1483,9 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
     var C = parseInt(cacheIn.value,10) / 100;
     var T = tierVal();
     var W = loadVal();
-    var m = computeAgent(C, T, W);
+    var S = sbVal();
+    var B = batchVal();
+    var m = computeAgent(C, T, W, S, B);
     var fleetHr = m.perAgent * fleet;
     var fleetDay = fleetHr * 24;
     var fleetMo = fleetHr * HOURS_PER_MONTH;
@@ -1476,10 +1512,11 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 
     var p = PRICING[T], w = WORKLOAD[W];
     var freshM = (m.freshTph/1e6), cachedM = (m.cachedTph/1e6), outM = (m.outputTph/1e6);
-    var arith = freshM.toFixed(2)+"M fresh in x $"+p.input.toFixed(2)
+    var bSuffix = B === "on" ? " x 0.5 (Batch)" : "";
+    var arith = "("+freshM.toFixed(2)+"M fresh in x $"+p.input.toFixed(2)
               + " + "+cachedM.toFixed(2)+"M cached in x $"+p.cache_read.toFixed(2)
-              + " + "+outM.toFixed(2)+"M out x $"+p.output.toFixed(2)
-              + " + $"+SANDBOX_PER_HR.toFixed(2)+" sandbox = $"+m.perAgent.toFixed(2)+"/agent-hr";
+              + " + "+outM.toFixed(2)+"M out x $"+p.output.toFixed(2)+")"+bSuffix
+              + " + $"+m.sandbox.toFixed(2)+" sandbox ("+S+") = $"+m.perAgent.toFixed(2)+"/agent-hr";
     binds.perAgent.setAttribute("title", arith);
     binds.fleetHour.setAttribute("title", "$"+m.perAgent.toFixed(2)+"/agent-hr x "+fleet.toLocaleString()+" agents = "+fmtMoney(fleetHr));
     binds.fleetDay.setAttribute("title", fmtMoney(fleetHr)+"/hr x 24 = "+fmtMoney(fleetDay));
@@ -1487,8 +1524,10 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
     binds.humans.setAttribute("title", fmtMoney(fleetHr)+"/hr / $100/hr = "+(humans<1?humans.toFixed(3):fmtInt(humans))+" engineers");
 
     var tierName = T.charAt(0).toUpperCase()+T.slice(1);
+    var sbName = S.charAt(0).toUpperCase()+S.slice(1);
+    var batchTxt = B === "on" ? " \u00b7 Batch API (-50%)" : "";
     binds.assume.textContent = "Assumptions: "+W+" workload \u00b7 "+tierName+" \u00b7 "
-      + w.calls_per_hour+" calls/hr \u00b7 "+(w.in_per_call/1000)+"k in / "+(w.out_per_call/1000)+"k out per call \u00b7 sandbox $0.10/agent-hr.";
+      + w.calls_per_hour+" calls/hr \u00b7 "+(w.in_per_call/1000)+"k in / "+(w.out_per_call/1000)+"k out per call \u00b7 sandbox $"+m.sandbox.toFixed(2)+"/hr ("+sbName+")"+batchTxt+".";
 
     var visParticles = Math.max(1, Math.min(3000, Math.round(80 * Math.log10(fleet+1) * w.loadFactor)));
     visualTarget = visParticles;
@@ -1513,7 +1552,7 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
     fleetIn.addEventListener(ev, update);
     cacheIn.addEventListener(ev, update);
   });
-  root.querySelectorAll('input[name="sfs-tier"], input[name="sfs-load"]').forEach(function(r){
+  root.querySelectorAll('input[name="sfs-tier"], input[name="sfs-load"], input[name="sfs-sb"], input[name="sfs-batch"]').forEach(function(r){
     r.addEventListener("change", update);
   });
 
@@ -1979,7 +2018,7 @@ Sandbox: $0.10.</p>
 <div class="wrap">
 <p id="sources"><strong>Sources &amp; footnotes</strong></p>
 <ol id="footnotes"></ol>
-<p style="margin-top:24px">Written by <a href="https://www.linkedin.com/in/yossi-eliaz/">Yossi Eliaz</a> · Incredibuild · Founder, <a href="https://islo.dev">islo.dev</a>. Tel Aviv, 2026.<br>
+<p style="margin-top:24px">Written by <a href="https://www.linkedin.com/in/yossi-eliaz/">Yossi Eliaz</a> · at incredibuild and <a href="https://islo.dev">islo.dev</a>. Tel Aviv, 2026.<br>
 Repo: <a href="https://github.com/zozo123/stochastic-cpu">github.com/zozo123/stochastic-cpu</a> · CC BY 4.0.</p>
 </div>
 </footer>
