@@ -975,6 +975,571 @@ figure.chart figcaption strong, figure.svg-fig figcaption strong { font-family: 
 </section>
 
 <!-- §05 two-level-cache -->
+<!-- §04b sandbox-fleet simulator -->
+<section id="sandbox-fleet" class="sfs-wrap">
+<p class="sfs-intro">Move the sliders. The dollars are real Anthropic pricing; the dots are sampled; the rest is your imagination.</p>
+
+<style>
+.sfs-wrap{font-family:"Source Serif 4",Georgia,serif;color:#1A1A1A;max-width:780px;margin:24px auto}
+.sfs-wrap .sfs-intro{font-size:14px;line-height:1.55;color:#3a342e;margin:0 0 12px;font-style:italic}
+.sfs-wrap .sfs-foot{font-size:12px;line-height:1.55;color:#6B6259;margin:10px 2px 0;font-style:italic}
+.sfs{font-family:"Source Serif 4",Georgia,serif;color:#1A1A1A;background:#FAF7F2;border:1px solid #D9D2C7;border-radius:2px;padding:24px 22px 22px;margin:0;max-width:780px}
+.sfs *,.sfs *::before,.sfs *::after{box-sizing:border-box}
+.sfs .mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+.sfs__cap{margin:0 0 18px}
+.sfs__title{font-size:15px;font-weight:600;letter-spacing:.01em;margin:0 0 4px;color:#1A1A1A}
+.sfs__sub{font-size:13px;line-height:1.5;color:#6B6259;margin:0;max-width:60ch}
+.sfs__grid{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:28px;align-items:start}
+@media (max-width:760px){.sfs__grid{grid-template-columns:1fr;gap:24px}}
+.sfs__left{min-width:0}
+.sfs__stage{position:relative;border:1px solid #D9D2C7;background:#FFFDF9;border-radius:2px;overflow:hidden}
+.sfs__canvas{display:block;width:100%;height:auto;aspect-ratio:440/260;background:linear-gradient(180deg,#FFFDF9 0%,#FAF7F2 100%)}
+.sfs__legend{position:absolute;top:8px;left:10px;display:flex;gap:10px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;color:#6B6259;letter-spacing:.04em;text-transform:uppercase}
+.sfs__chip{display:inline-flex;align-items:center;gap:5px}
+.sfs__dot{width:6px;height:6px;border-radius:50%;background:#B8430F;display:inline-block}
+.sfs__dot--cache{background:#2D7A3D;border-radius:1px;transform:rotate(45deg)}
+.sfs__sq{width:6px;height:6px;background:#1A1A1A;display:inline-block}
+.sfs__sample{position:absolute;right:10px;bottom:8px;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;color:#6B6259;letter-spacing:.02em;background:rgba(250,247,242,.78);padding:2px 6px;border-radius:2px}
+.sfs__controls{margin-top:18px;display:flex;flex-direction:column;gap:18px}
+.sfs__row{display:flex;flex-direction:column;gap:6px}
+.sfs__lbl{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:#1A1A1A;font-weight:500}
+.sfs__out{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13px;color:#B8430F;font-variant-numeric:tabular-nums}
+.sfs__range{appearance:none;-webkit-appearance:none;width:100%;height:24px;background:transparent;margin:0;cursor:pointer}
+.sfs__range:focus{outline:none}
+.sfs__range::-webkit-slider-runnable-track{height:2px;background:#D9D2C7;border-radius:1px}
+.sfs__range::-moz-range-track{height:2px;background:#D9D2C7;border-radius:1px}
+.sfs__range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:#B8430F;border:2px solid #FAF7F2;box-shadow:0 0 0 1px #B8430F;margin-top:-6px;transition:transform .12s ease}
+.sfs__range::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#B8430F;border:2px solid #FAF7F2;box-shadow:0 0 0 1px #B8430F}
+.sfs__range:hover::-webkit-slider-thumb,.sfs__range:focus-visible::-webkit-slider-thumb{transform:scale(1.15)}
+.sfs__range:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 1px #B8430F,0 0 0 4px rgba(184,67,15,.18)}
+.sfs__range:focus-visible::-moz-range-thumb{box-shadow:0 0 0 1px #B8430F,0 0 0 4px rgba(184,67,15,.18)}
+.sfs__ticks{display:flex;justify-content:space-between;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;color:#6B6259;letter-spacing:.04em;margin-top:-2px}
+.sfs__help{font-size:11px;color:#6B6259;font-style:italic}
+.sfs__row--toggles{flex-direction:row;gap:18px;flex-wrap:wrap}
+.sfs__seg{border:0;padding:0;margin:0;min-width:0;flex:1 1 auto;position:relative}
+.sfs__legendtxt{font-size:11px;color:#6B6259;margin-bottom:6px;padding:0;letter-spacing:.04em;text-transform:uppercase;font-family:"JetBrains Mono",ui-monospace,monospace}
+.sfs__segwrap{display:inline-flex;border:1px solid #D9D2C7;border-radius:2px;overflow:hidden;background:#FFFDF9}
+.sfs__seg input{position:absolute;opacity:0;pointer-events:none}
+.sfs__seg label{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:7px 12px;cursor:pointer;color:#6B6259;border-right:1px solid #D9D2C7;transition:background .12s,color .12s;user-select:none}
+.sfs__seg label:last-of-type{border-right:0}
+.sfs__seg input:checked + label{background:#B8430F;color:#FAF7F2}
+.sfs__seg input:focus-visible + label{outline:2px solid #B8430F;outline-offset:2px}
+.sfs__seg label:hover{color:#1A1A1A}
+.sfs__seg input:checked + label:hover{color:#FAF7F2}
+.sfs__right{display:flex;flex-direction:column;gap:16px;padding:18px 16px;background:#FFFDF9;border:1px solid #D9D2C7;border-radius:2px;align-self:start}
+@media (max-width:760px){.sfs__right{align-self:auto}}
+.sfs__headline{display:flex;flex-direction:column;gap:2px;padding-bottom:14px;border-bottom:1px solid #D9D2C7;position:relative}
+.sfs__hlabel{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#6B6259}
+.sfs__hval{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:30px;line-height:1.05;color:#B8430F;font-variant-numeric:tabular-nums;font-weight:500;margin-top:4px;cursor:help;border-bottom:1px dotted transparent}
+.sfs__hval:hover,.sfs__hval:focus{border-bottom-color:#B8430F;outline:none}
+.sfs__hnote{font-size:12px;font-style:italic;color:#6B6259;margin-top:2px}
+.sfs__stats{display:grid;grid-template-columns:1fr;gap:8px;margin:0;padding:0}
+.sfs__stats > div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:4px 0;border-bottom:1px dotted #D9D2C7}
+.sfs__stats > div:last-child{border-bottom:0}
+.sfs__stats dt{font-size:12px;color:#6B6259;margin:0}
+.sfs__stats dd{margin:0;font-size:13px;color:#1A1A1A;font-variant-numeric:tabular-nums;cursor:help;border-bottom:1px dotted transparent}
+.sfs__stats dd:hover,.sfs__stats dd:focus{border-bottom-color:#6B6259;outline:none}
+.sfs__tokens{display:flex;flex-direction:column;gap:6px}
+.sfs__tokhdr{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:#6B6259}
+.sfs__toktotal{font-size:12px;color:#1A1A1A}
+.sfs__bar{display:flex;height:6px;width:100%;background:#D9D2C7;border-radius:1px;overflow:hidden}
+.sfs__bar-cached{background:#2D7A3D;height:100%;transition:width .25s ease}
+.sfs__bar-fresh{background:#B8430F;height:100%;transition:width .25s ease}
+.sfs__barkey{display:flex;justify-content:space-between;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;color:#6B6259;letter-spacing:.02em}
+.sfs__barkey span{display:inline-flex;align-items:center;gap:5px}
+.sfs__barkey em{font-style:normal;color:#1A1A1A}
+.sfs__sw{width:8px;height:8px;display:inline-block;border-radius:1px}
+.sfs__sw--cache{background:#2D7A3D;transform:rotate(45deg)}
+.sfs__sw--fresh{background:#B8430F;border-radius:50%}
+.sfs__assume{font-size:11px;font-style:italic;color:#6B6259;line-height:1.5;margin:0;padding-top:10px;border-top:1px solid #D9D2C7}
+.sfs__rail{margin-top:18px;border:1px solid #D9D2C7;background:#FFFDF9;border-radius:2px;padding:14px 16px}
+.sfs__railhdr{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#6B6259;margin:0 0 8px}
+.sfs__raillist{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr;gap:6px}
+@media (min-width:600px){.sfs__raillist{grid-template-columns:1fr 1fr}}
+.sfs__railitem{display:flex;flex-direction:column;gap:2px;font-size:12px;line-height:1.45;color:#3a342e}
+.sfs__railk{color:#1A1A1A;font-weight:500}
+.sfs__railv{font-family:"JetBrains Mono",ui-monospace,monospace;color:#B8430F;font-size:11px}
+.sfs__railn{color:#6B6259;font-style:italic;font-size:11px}
+@media (prefers-reduced-motion:reduce){.sfs__bar-cached,.sfs__bar-fresh{transition:none}.sfs__range::-webkit-slider-thumb{transition:none}}
+</style>
+
+<figure class="sfs" id="sfs-widget" aria-labelledby="sfs-title">
+  <figcaption class="sfs__cap">
+    <h3 id="sfs-title" class="sfs__title">Sandbox fleet, live</h3>
+    <p class="sfs__sub">Prompts enter on the left, the model fans work out to sandboxes on the right. Cached prefixes take the green shortcut.</p>
+  </figcaption>
+
+  <div class="sfs__grid">
+    <div class="sfs__left">
+      <div class="sfs__stage">
+        <canvas class="sfs__canvas" width="440" height="260" role="img" aria-label="Animated diagram: prompts on the left flow through a central model to a grid of sandboxes on the right. Some prompts take a cached shortcut."></canvas>
+        <div class="sfs__legend" aria-hidden="true">
+          <span class="sfs__chip sfs__chip--prompt"><i class="sfs__dot"></i>prompt</span>
+          <span class="sfs__chip sfs__chip--cache"><i class="sfs__dot sfs__dot--cache"></i>cached</span>
+          <span class="sfs__chip sfs__chip--sbx"><i class="sfs__sq"></i>sandbox</span>
+        </div>
+        <div class="sfs__sample" aria-live="off">
+          <span data-bind="sample">showing 1 agent · 1 dot</span>
+        </div>
+      </div>
+
+      <div class="sfs__controls">
+        <div class="sfs__row">
+          <label class="sfs__lbl" for="sfs-fleet">
+            <span>Fleet size</span>
+            <output class="sfs__out" data-bind="fleetOut" for="sfs-fleet">1</output>
+          </label>
+          <input class="sfs__range" type="range" id="sfs-fleet" min="0" max="1000" step="1" value="0" aria-describedby="sfs-fleet-help" />
+          <div class="sfs__ticks" aria-hidden="true">
+            <span>1</span><span>10</span><span>100</span><span>1k</span><span>10k</span><span>100k</span>
+          </div>
+          <small class="sfs__help" id="sfs-fleet-help">Logarithmic, 1 to 100,000 concurrent agents.</small>
+        </div>
+
+        <div class="sfs__row">
+          <label class="sfs__lbl" for="sfs-cache">
+            <span>Cache hit rate</span>
+            <output class="sfs__out" data-bind="cacheOut" for="sfs-cache">60%</output>
+          </label>
+          <input class="sfs__range" type="range" id="sfs-cache" min="0" max="95" step="5" value="60" />
+          <div class="sfs__ticks" aria-hidden="true">
+            <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>95%</span>
+          </div>
+        </div>
+
+        <div class="sfs__row sfs__row--toggles">
+          <fieldset class="sfs__seg">
+            <legend class="sfs__legendtxt">Workload</legend>
+            <div class="sfs__segwrap" role="radiogroup" aria-label="Workload">
+              <input type="radio" name="sfs-load" id="sfs-load-light" value="light" />
+              <label for="sfs-load-light">Light</label>
+              <input type="radio" name="sfs-load" id="sfs-load-med" value="medium" checked />
+              <label for="sfs-load-med">Medium</label>
+              <input type="radio" name="sfs-load" id="sfs-load-heavy" value="heavy" />
+              <label for="sfs-load-heavy">Heavy</label>
+            </div>
+          </fieldset>
+
+          <fieldset class="sfs__seg">
+            <legend class="sfs__legendtxt">Tier</legend>
+            <div class="sfs__segwrap" role="radiogroup" aria-label="Model tier">
+              <input type="radio" name="sfs-tier" id="sfs-tier-sonnet" value="sonnet" checked />
+              <label for="sfs-tier-sonnet">Sonnet</label>
+              <input type="radio" name="sfs-tier" id="sfs-tier-opus" value="opus" />
+              <label for="sfs-tier-opus">Opus</label>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+
+    <aside class="sfs__right" aria-label="Cost readout">
+      <div class="sfs__headline">
+        <span class="sfs__hlabel">Per agent-hour</span>
+        <span class="sfs__hval" tabindex="0" aria-live="polite" data-bind="perAgent" data-tip="">$0.00</span>
+        <span class="sfs__hnote" data-bind="perAgentVs">vs $0.00 without cache</span>
+      </div>
+
+      <dl class="sfs__stats">
+        <div><dt>Fleet / hour</dt><dd tabindex="0" data-bind="fleetHour" data-tip="" class="mono">$0.00</dd></div>
+        <div><dt>Fleet / day</dt><dd tabindex="0" data-bind="fleetDay" data-tip="" class="mono">$0.00</dd></div>
+        <div><dt>Fleet / month</dt><dd tabindex="0" data-bind="fleetMonth" data-tip="" class="mono">$0.00</dd></div>
+        <div><dt>Equivalent humans @ $100/hr</dt><dd tabindex="0" data-bind="humans" data-tip="" class="mono">0</dd></div>
+      </dl>
+
+      <div class="sfs__tokens">
+        <div class="sfs__tokhdr">
+          <span>Input tokens / hr</span>
+          <span class="sfs__toktotal mono" data-bind="tokTotal">0</span>
+        </div>
+        <div class="sfs__bar" role="img" aria-label="Stacked bar of cached vs fresh tokens">
+          <span class="sfs__bar-cached" data-bind="barCached" style="width:60%"></span>
+          <span class="sfs__bar-fresh" data-bind="barFresh" style="width:40%"></span>
+        </div>
+        <div class="sfs__barkey">
+          <span><i class="sfs__sw sfs__sw--cache"></i>cached <em class="mono" data-bind="tokCached">0</em></span>
+          <span><i class="sfs__sw sfs__sw--fresh"></i>fresh <em class="mono" data-bind="tokFresh">0</em></span>
+        </div>
+      </div>
+
+      <p class="sfs__assume" data-bind="assume">
+        Assumptions: medium workload · Sonnet · 400 calls/hr · 80k in / 4k out per call · sandbox $0.10/agent-hr.
+      </p>
+    </aside>
+  </div>
+
+  <div class="sfs__rail" aria-label="Assumptions">
+    <p class="sfs__railhdr">Assumptions (hover any number above for the arithmetic)</p>
+    <ul class="sfs__raillist" data-bind="rail"></ul>
+  </div>
+</figure>
+
+<p class="sfs-foot">Workload tiers (light/medium/heavy) are user-chosen modeling assumptions, not measurements; prices and the 730-hour month are public anchors.</p>
+
+<script>
+(function(){
+  // verified against sanity_check_table: PASS
+  // case a (N=1,C=0,sonnet,medium): cost/agent-hr=$120.10, fleet/mo=$87,673, no-cache=$120.10
+  // case b (N=1,C=0.9,sonnet,medium): cost/agent-hr=$42.34, fleet/mo=$30,908.20, no-cache=$120.10, savings=64.747%
+  // case c (N=100000,C=0.9,opus,heavy): cost/agent-hr=$158.50, fleet/hr=$15,850,000, fleet/mo=$11.57B, eng-equiv=158,500
+
+  var PRICING = {
+    sonnet:{input:3.00, output:15.00, cache_read:0.30},
+    opus:  {input:5.00, output:25.00, cache_read:0.50}
+  };
+  var WORKLOAD = {
+    light:  {calls_per_hour:200, in_per_call:40000,  out_per_call:2000, loadFactor:0.6},
+    medium: {calls_per_hour:400, in_per_call:80000,  out_per_call:4000, loadFactor:1.0},
+    heavy:  {calls_per_hour:600, in_per_call:120000, out_per_call:6000, loadFactor:1.6}
+  };
+  var SANDBOX_PER_HR = 0.10;
+  var ENG_PER_HR = 100.00;
+  var HOURS_PER_MONTH = 730;
+
+  var ANCHORS = [
+    {k:"Sonnet input", v:"$3.00 / Mtok", n:"Anthropic public pricing, Claude Sonnet 4.x, mid-2026."},
+    {k:"Sonnet output", v:"$15.00 / Mtok", n:"Anthropic public pricing, Claude Sonnet 4.x, mid-2026."},
+    {k:"Sonnet cache-read", v:"$0.30 / Mtok", n:"Anthropic prompt caching: 90% discount vs input price."},
+    {k:"Opus input", v:"$5.00 / Mtok", n:"Anthropic public pricing, Claude Opus 4.x, mid-2026."},
+    {k:"Opus output", v:"$25.00 / Mtok", n:"Anthropic public pricing, Claude Opus 4.x, mid-2026."},
+    {k:"Opus cache-read", v:"$0.50 / Mtok", n:"Anthropic prompt caching: 90% discount vs input price."},
+    {k:"Sandbox / agent-hr", v:"$0.10/hr", n:"Midpoint of Modal ($0.1419/physical-core-hr) and E2B (~$0.05/vCPU-hr) assuming 2 vCPU per agent."},
+    {k:"Engineer baseline", v:"$100/hr", n:"Fully-loaded cost: salary + benefits + overhead. Comparison anchor only."},
+    {k:"Hours per month", v:"730", n:"Cloud-billing convention: 365.25 days / 12 * 24 hours."},
+    {k:"Light workload", v:"200 calls/hr, 40k in / 2k out", n:"User assumption: lightly-utilized coding agent."},
+    {k:"Medium workload", v:"400 calls/hr, 80k in / 4k out", n:"User assumption: steadily-working coding agent."},
+    {k:"Heavy workload", v:"600 calls/hr, 120k in / 6k out", n:"User assumption: saturated coding agent with large context."}
+  ];
+
+  function computeAgent(C, T, W){
+    var p = PRICING[T], w = WORKLOAD[W];
+    var inputTph = w.calls_per_hour * w.in_per_call;
+    var outputTph = w.calls_per_hour * w.out_per_call;
+    var cachedTph = inputTph * C;
+    var freshTph = inputTph * (1 - C);
+    var inputCost = (freshTph/1e6)*p.input + (cachedTph/1e6)*p.cache_read;
+    var outputCost = (outputTph/1e6)*p.output;
+    var modelCost = inputCost + outputCost;
+    var perAgent = modelCost + SANDBOX_PER_HR;
+    var noCache = (inputTph/1e6)*p.input + (outputTph/1e6)*p.output + SANDBOX_PER_HR;
+    var savings = noCache > 0 ? (1 - perAgent/noCache) * 100 : 0;
+    return {inputTph:inputTph, outputTph:outputTph, cachedTph:cachedTph, freshTph:freshTph,
+      inputCost:inputCost, outputCost:outputCost, modelCost:modelCost,
+      perAgent:perAgent, noCache:noCache, savings:savings, p:p, w:w};
+  }
+
+  function fmtMoney(v){
+    if(!isFinite(v)) return "$0";
+    var a = Math.abs(v);
+    if(a >= 1e9) return "$" + (v/1e9).toFixed(2) + "B";
+    if(a >= 1e6) return "$" + (v/1e6).toFixed(2) + "M";
+    if(a >= 1e4) return "$" + Math.round(v).toLocaleString("en-US");
+    if(a >= 1)   return "$" + v.toLocaleString("en-US",{maximumFractionDigits:2,minimumFractionDigits:2});
+    return "$" + v.toFixed(2);
+  }
+  function fmtFleet(n){
+    if(n >= 100000) return "100k";
+    if(n >= 10000) return (n/1000).toFixed(0)+"k";
+    if(n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,"")+"k";
+    return n.toLocaleString("en-US");
+  }
+  function fmtInt(n){ if(!isFinite(n)) return "0"; return Math.round(n).toLocaleString("en-US"); }
+  function fmtTok(n){
+    if(n >= 1e12) return (n/1e12).toFixed(2)+"T";
+    if(n >= 1e9) return (n/1e9).toFixed(2)+"B";
+    if(n >= 1e6) return (n/1e6).toFixed(1).replace(/\.0$/,"")+"M";
+    if(n >= 1e3) return (n/1e3).toFixed(1).replace(/\.0$/,"")+"k";
+    return Math.round(n).toString();
+  }
+
+  function sliderToFleet(v){
+    var t = v/1000;
+    var ln = t * Math.log(100000);
+    var f = Math.round(Math.exp(ln));
+    return Math.max(1, Math.min(100000, f));
+  }
+  function fleetToSlider(f){ return Math.round(1000 * (Math.log(f) / Math.log(100000))); }
+
+  var root = document.getElementById("sfs-widget");
+  if(!root) return;
+  var binds = {};
+  root.querySelectorAll("[data-bind]").forEach(function(el){ binds[el.getAttribute("data-bind")] = el; });
+
+  var fleetIn = root.querySelector("#sfs-fleet");
+  var cacheIn = root.querySelector("#sfs-cache");
+  var canvas = root.querySelector(".sfs__canvas");
+  var ctx = canvas.getContext ? canvas.getContext("2d") : null;
+  if(!ctx){ canvas.hidden = true; }
+
+  fleetIn.value = fleetToSlider(100);
+
+  function tierVal(){ var t = root.querySelector('input[name="sfs-tier"]:checked'); return t ? t.value : "sonnet"; }
+  function loadVal(){ var w = root.querySelector('input[name="sfs-load"]:checked'); return w ? w.value : "medium"; }
+
+  (function renderRail(){
+    var ul = binds.rail; if(!ul) return;
+    var html = "";
+    for(var i=0;i<ANCHORS.length;i++){
+      var a = ANCHORS[i];
+      html += '<li class="sfs__railitem"><span class="sfs__railk">'+a.k+'</span>'
+           + '<span class="sfs__railv">'+a.v+'</span>'
+           + '<span class="sfs__railn">'+a.n+'</span></li>';
+    }
+    ul.innerHTML = html;
+  })();
+
+  var DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  var CW = 440, CH = 260;
+  function resizeCanvas(){
+    if(!ctx) return;
+    var rect = canvas.getBoundingClientRect();
+    var w = Math.max(200, rect.width || CW);
+    canvas.width = Math.round(w * DPR);
+    canvas.height = Math.round(w * (CH/CW) * DPR);
+    ctx.setTransform(DPR * (w/CW), 0, 0, DPR * (w/CW), 0, 0);
+  }
+
+  var particles = [];
+  var sandboxGlow = new Array(96).fill(0);
+  var visualTarget = 0;
+  var visualCurrent = 0;
+  var rafId = null;
+  var visible = true;
+  var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var PROMPT_X = 40;
+  var MODEL_X = 220, MODEL_Y = 130, MODEL_R = 22;
+  var SBX_X0 = 300, SBX_Y0 = 40, SBX_W = 120, SBX_H = 180, SBX_COLS = 8, SBX_ROWS = 12;
+  function sbxCenter(i){
+    var col = i % SBX_COLS, row = Math.floor(i / SBX_COLS);
+    var cw = SBX_W / SBX_COLS, rh = SBX_H / SBX_ROWS;
+    return {x: SBX_X0 + col*cw + cw/2, y: SBX_Y0 + row*rh + rh/2, w:cw-2, h:rh-2};
+  }
+
+  function spawnParticle(cacheRate, loadFactor){
+    var cached = Math.random() < cacheRate;
+    var target = Math.floor(Math.random() * 96);
+    var y0 = 50 + Math.random() * 160;
+    particles.push({
+      x: PROMPT_X, y: y0, t: 0,
+      speed: (cached ? 0.018 : 0.013) * (0.85 + Math.random()*0.3) * (1 + (loadFactor-1)*0.15),
+      cached: cached, target: target
+    });
+  }
+
+  function bezier(t, p0, p1, p2){ var u = 1 - t; return u*u*p0 + 2*u*t*p1 + t*t*p2; }
+
+  function drawFrame(){
+    if(!ctx) return;
+    ctx.clearRect(0,0,CW,CH);
+    ctx.strokeStyle = "rgba(217,210,199,0.6)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(PROMPT_X, 30); ctx.lineTo(PROMPT_X, 230); ctx.stroke();
+    var tier = tierVal();
+    ctx.strokeStyle = "#1A1A1A"; ctx.fillStyle = "#FFFDF9"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(MODEL_X, MODEL_Y, MODEL_R, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    if(tier === "opus"){ ctx.beginPath(); ctx.arc(MODEL_X, MODEL_Y, MODEL_R - 4, 0, Math.PI*2); ctx.stroke(); }
+    ctx.fillStyle = "#6B6259";
+    ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textAlign = "center";
+    ctx.fillText(tier, MODEL_X, MODEL_Y + 3);
+
+    for(var i=0;i<96;i++){
+      var c = sbxCenter(i);
+      var glow = sandboxGlow[i];
+      sandboxGlow[i] = Math.max(0, glow - 0.025);
+      var alpha = 0.18 + glow * 0.7;
+      ctx.fillStyle = "rgba(184,67,15," + alpha.toFixed(3) + ")";
+      ctx.fillRect(c.x - c.w/2, c.y - c.h/2, c.w, c.h);
+    }
+
+    for(var j=particles.length-1; j>=0; j--){
+      var pt = particles[j];
+      pt.t += pt.speed;
+      if(pt.t >= 1){
+        sandboxGlow[pt.target] = Math.min(1, sandboxGlow[pt.target] + 0.35);
+        particles.splice(j, 1); continue;
+      }
+      var sbx = sbxCenter(pt.target);
+      var x, y;
+      if(pt.cached){
+        var midX = (PROMPT_X + sbx.x)/2;
+        var midY = (pt.y + sbx.y)/2 - 30;
+        x = bezier(pt.t, PROMPT_X, midX, sbx.x);
+        y = bezier(pt.t, pt.y, midY, sbx.y);
+      } else {
+        if(pt.t < 0.5){
+          var t1 = pt.t/0.5;
+          x = bezier(t1, PROMPT_X, (PROMPT_X+MODEL_X)/2, MODEL_X);
+          y = bezier(t1, pt.y, (pt.y + MODEL_Y)/2, MODEL_Y);
+        } else {
+          var t2 = (pt.t-0.5)/0.5;
+          x = bezier(t2, MODEL_X, (MODEL_X+sbx.x)/2, sbx.x);
+          y = bezier(t2, MODEL_Y, (MODEL_Y + sbx.y)/2 - 10, sbx.y);
+        }
+      }
+      if(pt.cached){
+        ctx.fillStyle = "#2D7A3D";
+        ctx.save(); ctx.translate(x, y); ctx.rotate(Math.PI/4);
+        ctx.fillRect(-2.2, -2.2, 4.4, 4.4); ctx.restore();
+      } else {
+        ctx.fillStyle = "#B8430F";
+        ctx.beginPath(); ctx.arc(x, y, 2.2, 0, Math.PI*2); ctx.fill();
+      }
+    }
+  }
+
+  function drawStaticFrame(fleet){
+    if(!ctx) return;
+    ctx.clearRect(0,0,CW,CH);
+    ctx.strokeStyle = "#1A1A1A"; ctx.fillStyle = "#FFFDF9"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(MODEL_X, MODEL_Y, MODEL_R, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    if(tierVal() === "opus"){ ctx.beginPath(); ctx.arc(MODEL_X, MODEL_Y, MODEL_R-4, 0, Math.PI*2); ctx.stroke(); }
+    ctx.fillStyle = "#6B6259";
+    ctx.font = '10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textAlign = "center";
+    ctx.fillText(tierVal(), MODEL_X, MODEL_Y + 3);
+    for(var i=0;i<6;i++){
+      ctx.fillStyle = "#B8430F";
+      ctx.beginPath(); ctx.arc(PROMPT_X, 50 + i*28, 2.5, 0, Math.PI*2); ctx.fill();
+    }
+    for(var k=0;k<2;k++){
+      ctx.fillStyle = "#2D7A3D";
+      ctx.save(); ctx.translate(PROMPT_X + 12, 80 + k*60); ctx.rotate(Math.PI/4);
+      ctx.fillRect(-2.5,-2.5,5,5); ctx.restore();
+    }
+    var cellsLit = Math.min(96, Math.max(1, Math.ceil(96 * Math.log10(fleet+1) / Math.log10(100001))));
+    for(var s=0;s<96;s++){
+      var c = sbxCenter(s);
+      var lit = s < cellsLit;
+      ctx.fillStyle = lit ? "rgba(184,67,15,0.7)" : "rgba(217,210,199,0.45)";
+      ctx.fillRect(c.x - c.w/2, c.y - c.h/2, c.w, c.h);
+    }
+  }
+
+  function loop(){
+    if(!visible || reducedMotion){ rafId = null; return; }
+    var cacheRate = parseInt(cacheIn.value,10) / 100;
+    var W = loadVal();
+    var lf = WORKLOAD[W].loadFactor;
+    visualCurrent += (visualTarget - visualCurrent) * 0.08;
+    var perFrame = Math.max(0, visualCurrent / 90);
+    var spawnN = Math.floor(perFrame) + (Math.random() < (perFrame - Math.floor(perFrame)) ? 1 : 0);
+    if(particles.length < 3000){
+      for(var i=0;i<spawnN && particles.length<3000;i++){ spawnParticle(cacheRate, lf); }
+    }
+    drawFrame();
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function startLoop(){
+    if(reducedMotion){ var f = sliderToFleet(parseInt(fleetIn.value,10)); drawStaticFrame(f); return; }
+    if(rafId == null && visible){ rafId = requestAnimationFrame(loop); }
+  }
+  function stopLoop(){ if(rafId != null){ cancelAnimationFrame(rafId); rafId = null; } }
+
+  var ariaTimer = null;
+  function update(){
+    var fleet = sliderToFleet(parseInt(fleetIn.value,10));
+    var C = parseInt(cacheIn.value,10) / 100;
+    var T = tierVal();
+    var W = loadVal();
+    var m = computeAgent(C, T, W);
+    var fleetHr = m.perAgent * fleet;
+    var fleetDay = fleetHr * 24;
+    var fleetMo = fleetHr * HOURS_PER_MONTH;
+    var humans = fleetHr / ENG_PER_HR;
+    var cachedFleet = m.cachedTph * fleet;
+    var freshFleet = m.freshTph * fleet;
+    var totalFleet = m.inputTph * fleet;
+
+    binds.fleetOut.textContent = fmtFleet(fleet);
+    binds.cacheOut.textContent = (C*100).toFixed(0) + "%";
+    binds.perAgent.textContent = fmtMoney(m.perAgent);
+    binds.perAgentVs.textContent = "vs " + fmtMoney(m.noCache) + " without cache  (" + m.savings.toFixed(0) + "% saved)";
+    binds.fleetHour.textContent = fmtMoney(fleetHr);
+    binds.fleetDay.textContent = fmtMoney(fleetDay);
+    binds.fleetMonth.textContent = fmtMoney(fleetMo);
+    binds.humans.textContent = humans < 1 ? humans.toFixed(2) : fmtInt(humans);
+
+    binds.tokTotal.textContent = fmtTok(totalFleet);
+    binds.tokCached.textContent = fmtTok(cachedFleet);
+    binds.tokFresh.textContent = fmtTok(freshFleet);
+    var cPct = (C*100);
+    binds.barCached.style.width = cPct + "%";
+    binds.barFresh.style.width = (100 - cPct) + "%";
+
+    var p = PRICING[T], w = WORKLOAD[W];
+    var freshM = (m.freshTph/1e6), cachedM = (m.cachedTph/1e6), outM = (m.outputTph/1e6);
+    var arith = freshM.toFixed(2)+"M fresh in x $"+p.input.toFixed(2)
+              + " + "+cachedM.toFixed(2)+"M cached in x $"+p.cache_read.toFixed(2)
+              + " + "+outM.toFixed(2)+"M out x $"+p.output.toFixed(2)
+              + " + $"+SANDBOX_PER_HR.toFixed(2)+" sandbox = $"+m.perAgent.toFixed(2)+"/agent-hr";
+    binds.perAgent.setAttribute("title", arith);
+    binds.fleetHour.setAttribute("title", "$"+m.perAgent.toFixed(2)+"/agent-hr x "+fleet.toLocaleString()+" agents = "+fmtMoney(fleetHr));
+    binds.fleetDay.setAttribute("title", fmtMoney(fleetHr)+"/hr x 24 = "+fmtMoney(fleetDay));
+    binds.fleetMonth.setAttribute("title", fmtMoney(fleetHr)+"/hr x 730 hr/mo = "+fmtMoney(fleetMo));
+    binds.humans.setAttribute("title", fmtMoney(fleetHr)+"/hr / $100/hr = "+(humans<1?humans.toFixed(3):fmtInt(humans))+" engineers");
+
+    var tierName = T.charAt(0).toUpperCase()+T.slice(1);
+    binds.assume.textContent = "Assumptions: "+W+" workload \u00b7 "+tierName+" \u00b7 "
+      + w.calls_per_hour+" calls/hr \u00b7 "+(w.in_per_call/1000)+"k in / "+(w.out_per_call/1000)+"k out per call \u00b7 sandbox $0.10/agent-hr.";
+
+    var visParticles = Math.max(1, Math.min(3000, Math.round(80 * Math.log10(fleet+1) * w.loadFactor)));
+    visualTarget = visParticles;
+    if(fleet === 1){
+      binds.sample.textContent = "showing 1 agent \u00b7 1 dot";
+      visualTarget = Math.min(8, visualTarget);
+    } else if(fleet > visParticles){
+      binds.sample.textContent = "showing "+fleet.toLocaleString()+" agents \u00b7 sampled as "+visParticles.toLocaleString()+" dots";
+    } else {
+      binds.sample.textContent = "showing "+fleet.toLocaleString()+" agents";
+    }
+
+    if(ariaTimer) clearTimeout(ariaTimer);
+    ariaTimer = setTimeout(function(){
+      binds.perAgent.setAttribute("aria-label", fmtMoney(m.perAgent) + " per agent-hour");
+    }, 300);
+
+    if(reducedMotion){ drawStaticFrame(fleet); }
+  }
+
+  ["input","change"].forEach(function(ev){
+    fleetIn.addEventListener(ev, update);
+    cacheIn.addEventListener(ev, update);
+  });
+  root.querySelectorAll('input[name="sfs-tier"], input[name="sfs-load"]').forEach(function(r){
+    r.addEventListener("change", update);
+  });
+
+  var resizeT = null;
+  window.addEventListener("resize", function(){
+    if(resizeT) clearTimeout(resizeT);
+    resizeT = setTimeout(function(){ resizeCanvas(); if(reducedMotion){ drawStaticFrame(sliderToFleet(parseInt(fleetIn.value,10))); } }, 80);
+  });
+
+  if("IntersectionObserver" in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        visible = e.isIntersecting;
+        if(visible) startLoop(); else stopLoop();
+      });
+    }, {threshold:0.01});
+    io.observe(root);
+  }
+
+  if(window.matchMedia){
+    var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    var onMQ = function(){ reducedMotion = mq.matches; if(reducedMotion){ stopLoop(); update(); } else { startLoop(); } };
+    if(mq.addEventListener) mq.addEventListener("change", onMQ); else if(mq.addListener) mq.addListener(onMQ);
+  }
+
+  resizeCanvas();
+  update();
+  startLoop();
+})();
+</script>
+</section>
+
 <section id="two-level-cache">
   <h2><span class="num">05</span> The two-level cache <a class="copy" href="#two-level-cache" aria-label="Link to this section">¶</a></h2>
 
