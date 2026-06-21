@@ -1844,73 +1844,110 @@ Sandbox: $0.10.</p>
   <p>The sections above name the pieces. Here are the dates, written down so they can be checked later.</p>
 
   <figure class="chart" id="chart-timeline" data-anim="chart-T">
-    <svg viewBox="0 0 640 300" width="100%" role="img"
-         aria-label="Timeline 2025 to 2030. 2025: agents cross 75 percent on SWE-bench. 2026: human baseline crossed. Agent hour SKU debuts. Shopify reports 12.5 percent of merged PRs are agent coauthored. 2027: hyperscalers ship agent hour SKUs. Training compute crosses 10^27 FLOPs in the aggressive case. 2028: power binds, not silicon. 2029: triple signature provenance ships as default. 2030: data center electricity reaches about 945 TWh. The dotted vertical line marks mid 2026, where the essay is dated."
+    <svg viewBox="0 0 760 380" width="100%" role="img"
+         aria-label="Timeline 2025 to 2030. 2025: agents cross 75 percent on SWE-bench. 2026: human baseline crossed. Agent hour SKU debuts. 2027: hyperscalers ship agent hour SKUs. Training compute crosses 10^27 FLOPs in the aggressive case. 2028: power binds, not silicon. 2029: triple signature provenance ships as default. 2030: data center electricity reaches about 945 TWh. The dotted vertical line marks mid 2026, where the essay is dated."
          class="sw3-chart sw3-chart-t" xmlns="http://www.w3.org/2000/svg">
       <style>
         .sw3-chart-t text { font-family: 'JetBrains Mono', ui-monospace, monospace; fill: #1A1A1A; }
         .sw3-chart-t .yr { font: 500 12px 'JetBrains Mono', monospace; fill: #1A1A1A; letter-spacing: 0.04em; }
-        .sw3-chart-t .hd { font: italic 12.5px 'Source Serif 4', Georgia, serif; fill: #1A1A1A; }
+        .sw3-chart-t .hd { font: italic 13px 'Source Serif 4', Georgia, serif; fill: #1A1A1A; }
         .sw3-chart-t .sub { font: 10.5px 'Source Serif 4', Georgia, serif; fill: #6B6259; font-style: italic; }
         .sw3-chart-t .axis { stroke: #1A1A1A; stroke-width: 1; }
         .sw3-chart-t .lp { stroke: #B8430F; stroke-width: 1; }
         .sw3-chart-t .lp-fc { stroke: #D86A36; stroke-width: 1; stroke-dasharray: 3 2; }
         .sw3-chart-t .dot { fill: #B8430F; }
         .sw3-chart-t .dot-fc { fill: #FAF7F2; stroke: #B8430F; stroke-width: 1.5; }
-        .sw3-chart-t .nowline { stroke: #B8430F; stroke-width: 1; stroke-dasharray: 4 3; opacity: 0.6; }
-        .sw3-chart-t .nowtxt { font: 10px 'JetBrains Mono', monospace; fill: #B8430F; letter-spacing: 0.06em; text-transform: uppercase; }
+        .sw3-chart-t .nowline { stroke: #B8430F; stroke-width: 1; stroke-dasharray: 4 3; opacity: 0.65; }
+        .sw3-chart-t .nowtxt { font: 600 10px 'JetBrains Mono', monospace; fill: #B8430F; letter-spacing: 0.08em; text-transform: uppercase; }
+        .sw3-chart-t .legend { font: italic 10px 'Source Serif 4', Georgia, serif; fill: #6B6259; }
         @media (prefers-reduced-motion: no-preference) {
-          .sw3-chart-t[data-anim] .lp, .sw3-chart-t[data-anim] .lp-fc, .sw3-chart-t[data-anim] .dot, .sw3-chart-t[data-anim] .dot-fc, .sw3-chart-t[data-anim] .hd, .sw3-chart-t[data-anim] .sub, .sw3-chart-t[data-anim] .yr, .sw3-chart-t[data-anim] .nowline, .sw3-chart-t[data-anim] .nowtxt { opacity: 0; }
-          .sw3-chart-t.anim-on .lp, .sw3-chart-t.anim-on .lp-fc, .sw3-chart-t.anim-on .dot, .sw3-chart-t.anim-on .dot-fc, .sw3-chart-t.anim-on .hd, .sw3-chart-t.anim-on .sub, .sw3-chart-t.anim-on .yr, .sw3-chart-t.anim-on .nowline, .sw3-chart-t.anim-on .nowtxt { animation: tlfade 0.6s ease-out forwards; }
+          .sw3-chart-t[data-anim] .lp, .sw3-chart-t[data-anim] .lp-fc, .sw3-chart-t[data-anim] .dot, .sw3-chart-t[data-anim] .dot-fc, .sw3-chart-t[data-anim] .hd, .sw3-chart-t[data-anim] .sub, .sw3-chart-t[data-anim] .yr, .sw3-chart-t[data-anim] .nowline, .sw3-chart-t[data-anim] .nowtxt, .sw3-chart-t[data-anim] .legend { opacity: 0; }
+          .sw3-chart-t.anim-on .lp, .sw3-chart-t.anim-on .lp-fc, .sw3-chart-t.anim-on .dot, .sw3-chart-t.anim-on .dot-fc, .sw3-chart-t.anim-on .hd, .sw3-chart-t.anim-on .sub, .sw3-chart-t.anim-on .yr, .sw3-chart-t.anim-on .nowline, .sw3-chart-t.anim-on .nowtxt, .sw3-chart-t.anim-on .legend { animation: tlfade 0.6s ease-out forwards; }
           @keyframes tlfade { to { opacity: 1; } }
         }
       </style>
 
-      <line class="axis" x1="40" y1="150" x2="620" y2="150"/>
+      <!-- baseline axis -->
+      <line class="axis" x1="40" y1="200" x2="720" y2="200"/>
 
-      <line class="nowline" x1="230" y1="40" x2="230" y2="260"/>
-      <text class="nowtxt" x="234" y="48">now · jun 2026</text>
+      <!-- now marker at mid-2026: between x=160 (2026) and x=280 (2027), so x=220 -->
+      <line class="nowline" x1="220" y1="70" x2="220" y2="330"/>
+      <text class="nowtxt" x="220" y="60" text-anchor="middle">now · jun 2026</text>
 
-      <text class="hd" x="60" y="92">Agents cross 75% on SWE-bench</text>
-      <text class="sub" x="60" y="106">Sonnet 4.5 at 77.2%; Opus 4.5 first over 80%</text>
-      <line class="lp" x1="60" y1="110" x2="60" y2="150"/>
-      <circle class="dot" cx="60" cy="150" r="4"/>
-      <text class="yr" x="60" y="172" text-anchor="middle">2025</text>
+      <!-- 2025 @ x=40, ABOVE -->
+      <g>
+        <text class="hd" x="40" y="146">Agents at 75%</text>
+        <text class="sub" x="40" y="162">Sonnet 4.5 hits 77.2%</text>
+        <text class="sub" x="40" y="176">Opus 4.5 first over 80%</text>
+        <line class="lp" x1="40" y1="184" x2="40" y2="200"/>
+        <circle class="dot" cx="40" cy="200" r="4.5"/>
+        <text class="yr" x="40" y="220" text-anchor="start">2025</text>
+      </g>
 
-      <text class="yr" x="170" y="172" text-anchor="middle">2026</text>
-      <circle class="dot" cx="170" cy="150" r="4"/>
-      <line class="lp" x1="170" y1="150" x2="170" y2="186"/>
-      <text class="hd" x="170" y="200" text-anchor="middle">Human baseline crossed</text>
-      <text class="sub" x="170" y="214" text-anchor="middle">Fable 5 at 95%. Agent hour SKU drafted.</text>
-      <text class="sub" x="170" y="228" text-anchor="middle">Shopify River at 12.5% of merged PRs.</text>
+      <!-- 2026 @ x=160, BELOW -->
+      <g>
+        <text class="yr" x="160" y="220" text-anchor="middle">2026</text>
+        <circle class="dot" cx="160" cy="200" r="4.5"/>
+        <line class="lp" x1="160" y1="200" x2="160" y2="234"/>
+        <text class="hd" x="160" y="248" text-anchor="middle">Human bar crossed</text>
+        <text class="sub" x="160" y="264" text-anchor="middle">Fable 5 at 95%.</text>
+        <text class="sub" x="160" y="278" text-anchor="middle">Agent hour SKU drafted.</text>
+        <text class="sub" x="160" y="292" text-anchor="middle">Shopify River at 12.5%.</text>
+      </g>
 
-      <text class="hd" x="280" y="92" text-anchor="middle">Agent hour at all three hyperscalers</text>
-      <text class="sub" x="280" y="106" text-anchor="middle">10²⁷ FLOPs in the aggressive case</text>
-      <line class="lp-fc" x1="280" y1="110" x2="280" y2="150"/>
-      <circle class="dot-fc" cx="280" cy="150" r="4"/>
-      <text class="yr" x="280" y="172" text-anchor="middle">2027</text>
+      <!-- 2027 @ x=280, ABOVE -->
+      <g>
+        <text class="hd" x="280" y="146" text-anchor="middle">Hyperscaler SKUs</text>
+        <text class="sub" x="280" y="162" text-anchor="middle">All three ship an agent hour</text>
+        <text class="sub" x="280" y="176" text-anchor="middle">10²⁷ FLOPs in aggressive case</text>
+        <line class="lp-fc" x1="280" y1="184" x2="280" y2="200"/>
+        <circle class="dot-fc" cx="280" cy="200" r="4.5"/>
+        <text class="yr" x="280" y="220" text-anchor="middle">2027</text>
+      </g>
 
-      <text class="yr" x="390" y="172" text-anchor="middle">2028</text>
-      <circle class="dot-fc" cx="390" cy="150" r="4"/>
-      <line class="lp-fc" x1="390" y1="150" x2="390" y2="186"/>
-      <text class="hd" x="390" y="200" text-anchor="middle">Power binds, not silicon</text>
-      <text class="sub" x="390" y="214" text-anchor="middle">First clusters sited next to a generator</text>
+      <!-- 2028 @ x=400, BELOW -->
+      <g>
+        <text class="yr" x="400" y="220" text-anchor="middle">2028</text>
+        <circle class="dot-fc" cx="400" cy="200" r="4.5"/>
+        <line class="lp-fc" x1="400" y1="200" x2="400" y2="234"/>
+        <text class="hd" x="400" y="248" text-anchor="middle">Power binds</text>
+        <text class="sub" x="400" y="264" text-anchor="middle">Not silicon any more.</text>
+        <text class="sub" x="400" y="278" text-anchor="middle">First cluster sited</text>
+        <text class="sub" x="400" y="292" text-anchor="middle">next to a generator.</text>
+      </g>
 
-      <text class="hd" x="500" y="92" text-anchor="middle">Triple signature provenance default</text>
-      <text class="sub" x="500" y="106" text-anchor="middle">SLSA + Sigstore + EU CRA in production</text>
-      <line class="lp-fc" x1="500" y1="110" x2="500" y2="150"/>
-      <circle class="dot-fc" cx="500" cy="150" r="4"/>
-      <text class="yr" x="500" y="172" text-anchor="middle">2029</text>
+      <!-- 2029 @ x=520, ABOVE -->
+      <g>
+        <text class="hd" x="520" y="146" text-anchor="middle">Triple signature</text>
+        <text class="sub" x="520" y="162" text-anchor="middle">Provenance default in CI</text>
+        <text class="sub" x="520" y="176" text-anchor="middle">SLSA + Sigstore + EU CRA</text>
+        <line class="lp-fc" x1="520" y1="184" x2="520" y2="200"/>
+        <circle class="dot-fc" cx="520" cy="200" r="4.5"/>
+        <text class="yr" x="520" y="220" text-anchor="middle">2029</text>
+      </g>
 
-      <text class="yr" x="610" y="172" text-anchor="middle">2030</text>
-      <circle class="dot-fc" cx="610" cy="150" r="4"/>
-      <line class="lp-fc" x1="610" y1="150" x2="610" y2="186"/>
-      <text class="hd" x="610" y="200" text-anchor="end">945 TWh. K8s demoted.</text>
-      <text class="sub" x="610" y="214" text-anchor="end">Bill flips: inference 40, agent hours 25</text>
+      <!-- 2030 @ x=680, BELOW -->
+      <g>
+        <text class="yr" x="680" y="220" text-anchor="end">2030</text>
+        <circle class="dot-fc" cx="680" cy="200" r="4.5"/>
+        <line class="lp-fc" x1="680" y1="200" x2="680" y2="234"/>
+        <text class="hd" x="680" y="248" text-anchor="end">945 TWh</text>
+        <text class="sub" x="680" y="264" text-anchor="end">Bill flips: inference 40,</text>
+        <text class="sub" x="680" y="278" text-anchor="end">agent hours 25.</text>
+        <text class="sub" x="680" y="292" text-anchor="end">Kubernetes demoted.</text>
+      </g>
 
-      <text x="40" y="282" font-family="'Source Serif 4', Georgia, serif" font-style="italic" font-size="10.5" fill="#6B6259">Solid dot = known. Open ring = forecast. Dotted vertical = today.</text>
+      <!-- legend at bottom -->
+      <g>
+        <circle class="dot" cx="50" cy="354" r="4"/>
+        <text class="legend" x="60" y="358">known</text>
+        <circle class="dot-fc" cx="130" cy="354" r="4"/>
+        <text class="legend" x="140" y="358">forecast</text>
+        <line class="nowline" x1="216" y1="350" x2="216" y2="360"/>
+        <text class="legend" x="224" y="358">today</text>
+      </g>
     </svg>
-    <figcaption><strong>The next five years, dated.</strong> Each year names one milestone the essay's argument predicts. The dotted vertical marks where we are; the open rings are the forecasts.</figcaption>
+    <figcaption><strong>The next five years, dated.</strong> Each year names one milestone the essay's argument predicts. The dotted vertical marks where we are; the open rings are forecasts.</figcaption>
   </figure>
 
   <p><em>2025.</em> Coding agents cross 75% on SWE-bench Verified. Sonnet 4.5 lands at 77.2% in September. Opus 4.5 becomes the first model over 80% in November.<sup class="fn"><a href="#fn2">2</a></sup> The autonomy slider becomes a product surface, not a research demo.</p>
